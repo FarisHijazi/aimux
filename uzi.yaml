@@ -1,0 +1,2 @@
+devCommand: cd astrobits && yarn && yarn dev --port $PORT
+portRange: 3000-3010
