@@ -10,6 +10,7 @@ import yaml
 @dataclass
 class Config:
     """Uzi configuration."""
+
     dev_command: Optional[str] = None
     port_range: Optional[str] = None
 
@@ -25,10 +26,7 @@ def load_config(path: str) -> Config:
     if not config_path.exists():
         return Config()
 
-    with open(config_path, 'r') as f:
+    with open(config_path, "r") as f:
         data = yaml.safe_load(f) or {}
 
-    return Config(
-        dev_command=data.get('devCommand'),
-        port_range=data.get('portRange')
-    )
+    return Config(dev_command=data.get("devCommand"), port_range=data.get("portRange"))

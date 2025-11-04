@@ -5,7 +5,7 @@ import subprocess
 import time
 from datetime import datetime
 
-from .state import StateManager
+from ..state import StateManager
 
 
 def get_git_diff_totals(session_name: str, state_manager: StateManager) -> tuple:
@@ -23,7 +23,7 @@ def get_git_diff_totals(session_name: str, state_manager: StateManager) -> tuple
         cwd=session_state.worktree_path,
         capture_output=True,
         text=True,
-        check=False
+        check=False,
     )
 
     if result.returncode != 0:
@@ -33,8 +33,8 @@ def get_git_diff_totals(session_name: str, state_manager: StateManager) -> tuple
     insertions = 0
     deletions = 0
 
-    ins_match = re.search(r'(\d+) insertion(?:s)?\(\+\)', output)
-    del_match = re.search(r'(\d+) deletion(?:s)?\(\-\)', output)
+    ins_match = re.search(r"(\d+) insertion(?:s)?\(\+\)", output)
+    del_match = re.search(r"(\d+) deletion(?:s)?\(\-\)", output)
 
     if ins_match:
         insertions = int(ins_match.group(1))
@@ -50,7 +50,7 @@ def get_pane_content(session_name: str) -> str:
         ["tmux", "capture-pane", "-t", f"{session_name}:agent", "-p"],
         capture_output=True,
         text=True,
-        check=False
+        check=False,
     )
     if result.returncode != 0:
         return ""
@@ -94,15 +94,17 @@ def print_sessions(state_manager: StateManager, active_sessions: list) -> None:
     sessions.sort(key=lambda x: x[1].updated_at, reverse=True)
 
     # Print header
-    print(f"{'AGENT':<15} {'MODEL':<10} {'STATUS':<20} {'DIFF':<15} {'ADDR':<30} PROMPT")
+    print(
+        f"{'AGENT':<15} {'MODEL':<10} {'STATUS':<20} {'DIFF':<15} {'ADDR':<30} PROMPT"
+    )
 
     # Print sessions
     for session_name, state in sessions:
         # Extract agent name from session name
-        parts = session_name.split('-')
+        parts = session_name.split("-")
         agent_name = session_name
         if len(parts) >= 4 and parts[0] == "agent":
-            agent_name = '-'.join(parts[3:])
+            agent_name = "-".join(parts[3:])
 
         status = get_agent_status(session_name)
         insertions, deletions = get_git_diff_totals(session_name, state_manager)
@@ -124,7 +126,9 @@ def print_sessions(state_manager: StateManager, active_sessions: list) -> None:
         if len(prompt) > 50:
             prompt = prompt[:47] + "..."
 
-        print(f"{agent_name:<15} {model:<10} {format_status(status):<20} {changes:<25} {addr:<30} {prompt}")
+        print(
+            f"{agent_name:<15} {model:<10} {format_status(status):<20} {changes:<25} {addr:<30} {prompt}"
+        )
 
 
 def execute_ls(watch: bool = False):

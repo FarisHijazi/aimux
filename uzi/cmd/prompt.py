@@ -9,9 +9,9 @@ import time
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from .agents import get_random_agent
-from .config import Config, get_default_config_path, load_config
-from .state import StateManager
+from ..agents import get_random_agent
+from ..config import Config, get_default_config_path, load_config
+from ..state import StateManager
 
 
 def is_port_available(port: int) -> bool:
@@ -24,7 +24,9 @@ def is_port_available(port: int) -> bool:
         return False
 
 
-def find_available_port(start_port: int, end_port: int, assigned_ports: List[int]) -> int:
+def find_available_port(
+    start_port: int, end_port: int, assigned_ports: List[int]
+) -> int:
     """Find the first available port in the given range."""
     for port in range(start_port, end_port + 1):
         if port in assigned_ports:
@@ -38,8 +40,8 @@ def parse_agents(agents_str: str) -> Dict[str, Dict[str, any]]:
     """Parse agent specification string like 'claude:2,codex:1'."""
     agent_configs = {}
 
-    for pair in agents_str.split(','):
-        parts = pair.strip().split(':')
+    for pair in agents_str.split(","):
+        parts = pair.strip().split(":")
         if len(parts) != 2:
             raise ValueError(f"Invalid agent format: {pair} (expected agent:count)")
 
@@ -64,7 +66,7 @@ def clone_repository(repo_url: str, target_dir: Path) -> bool:
             ["git", "clone", repo_url, str(target_dir)],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
         return result.returncode == 0
     except Exception as e:
@@ -79,9 +81,9 @@ def copy_directory_recursive(source: Path, destination: Path) -> bool:
         shutil.copytree(
             source,
             destination,
-            ignore=shutil.ignore_patterns('.git'),
+            ignore=shutil.ignore_patterns(".git"),
             symlinks=True,
-            dirs_exist_ok=False
+            dirs_exist_ok=False,
         )
         return True
     except Exception as e:
@@ -94,7 +96,7 @@ def execute_prompt(
     agents_str: str = "claude:1",
     config_path: str = None,
     no_worktree: bool = False,
-    clone_url: Optional[str] = None
+    clone_url: Optional[str] = None,
 ):
     """Execute the prompt command.
 
@@ -169,7 +171,7 @@ def execute_prompt(
                         ["git", "rev-parse", "--short", "HEAD"],
                         capture_output=True,
                         text=True,
-                        check=False
+                        check=False,
                     )
                     if result.returncode != 0:
                         print(f"Error getting git hash: {result.stderr}")
@@ -181,13 +183,13 @@ def execute_prompt(
                         ["git", "remote", "get-url", "origin"],
                         capture_output=True,
                         text=True,
-                        check=False
+                        check=False,
                     )
                     if result.returncode != 0:
                         print(f"Error getting git remote: {result.stderr}")
                         continue
                     remote_url = result.stdout.strip()
-                    repo_name = Path(remote_url).stem.replace('.git', '')
+                    repo_name = Path(remote_url).stem.replace(".git", "")
 
                 # Create unique identifiers
                 timestamp = int(time.time())
@@ -195,7 +197,9 @@ def execute_prompt(
 
                 # Create branch and worktree names
                 branch_name = f"{random_agent_name}-{repo_name}-{git_hash}-{unique_id}"
-                worktree_name = f"{random_agent_name}-{repo_name}-{git_hash}-{unique_id}"
+                worktree_name = (
+                    f"{random_agent_name}-{repo_name}-{git_hash}-{unique_id}"
+                )
                 session_name = f"agent-{repo_name}-{git_hash}-{random_agent_name}"
 
                 # Create worktree/copy path
@@ -220,26 +224,33 @@ def execute_prompt(
                             ["git", "init"],
                             cwd=str(worktree_path),
                             capture_output=True,
-                            check=False
+                            check=False,
                         )
                         subprocess.run(
                             ["git", "add", "."],
                             cwd=str(worktree_path),
                             capture_output=True,
-                            check=False
+                            check=False,
                         )
                         subprocess.run(
                             ["git", "commit", "-m", "Initial copy"],
                             cwd=str(worktree_path),
                             capture_output=True,
-                            check=False
+                            check=False,
                         )
                 else:
                     result = subprocess.run(
-                        ["git", "worktree", "add", "-b", branch_name, str(worktree_path)],
+                        [
+                            "git",
+                            "worktree",
+                            "add",
+                            "-b",
+                            branch_name,
+                            str(worktree_path),
+                        ],
                         capture_output=True,
                         text=True,
-                        check=False
+                        check=False,
                     )
                     if result.returncode != 0:
                         print(f"Error creating git worktree: {result.stderr}")
@@ -247,10 +258,18 @@ def execute_prompt(
 
                 # Create tmux session
                 result = subprocess.run(
-                    ["tmux", "new-session", "-d", "-s", session_name, "-c", str(worktree_path)],
+                    [
+                        "tmux",
+                        "new-session",
+                        "-d",
+                        "-s",
+                        session_name,
+                        "-c",
+                        str(worktree_path),
+                    ],
                     capture_output=True,
                     text=True,
-                    check=False
+                    check=False,
                 )
                 if result.returncode != 0:
                     print(f"Error creating tmux session: {result.stderr}")
@@ -260,7 +279,7 @@ def execute_prompt(
                 subprocess.run(
                     ["tmux", "rename-window", "-t", f"{session_name}:0", "agent"],
                     capture_output=True,
-                    check=False
+                    check=False,
                 )
 
                 selected_port = 0
@@ -268,29 +287,53 @@ def execute_prompt(
                 # Handle dev command if configured
                 if cfg.dev_command and cfg.port_range:
                     try:
-                        ports = cfg.port_range.split('-')
+                        ports = cfg.port_range.split("-")
                         if len(ports) == 2:
                             start_port = int(ports[0])
                             end_port = int(ports[1])
 
-                            if 1 <= start_port <= 65535 and 1 <= end_port <= 65535 and end_port >= start_port:
-                                selected_port = find_available_port(start_port, end_port, assigned_ports)
+                            if (
+                                1 <= start_port <= 65535
+                                and 1 <= end_port <= 65535
+                                and end_port >= start_port
+                            ):
+                                selected_port = find_available_port(
+                                    start_port, end_port, assigned_ports
+                                )
                                 assigned_ports.append(selected_port)
 
-                                dev_cmd = cfg.dev_command.replace("$PORT", str(selected_port))
+                                dev_cmd = cfg.dev_command.replace(
+                                    "$PORT", str(selected_port)
+                                )
 
                                 # Create uzi-dev window
                                 subprocess.run(
-                                    ["tmux", "new-window", "-t", session_name, "-n", "uzi-dev", "-c", str(worktree_path)],
+                                    [
+                                        "tmux",
+                                        "new-window",
+                                        "-t",
+                                        session_name,
+                                        "-n",
+                                        "uzi-dev",
+                                        "-c",
+                                        str(worktree_path),
+                                    ],
                                     capture_output=True,
-                                    check=False
+                                    check=False,
                                 )
 
                                 # Send dev command
                                 subprocess.run(
-                                    ["tmux", "send-keys", "-t", f"{session_name}:uzi-dev", dev_cmd, "C-m"],
+                                    [
+                                        "tmux",
+                                        "send-keys",
+                                        "-t",
+                                        f"{session_name}:uzi-dev",
+                                        dev_cmd,
+                                        "C-m",
+                                    ],
                                     capture_output=True,
-                                    check=False
+                                    check=False,
                                 )
                     except Exception as e:
                         print(f"Error setting up dev server: {e}")
@@ -299,16 +342,23 @@ def execute_prompt(
                 subprocess.run(
                     ["tmux", "send-keys", "-t", f"{session_name}:agent", "C-m"],
                     capture_output=True,
-                    check=False
+                    check=False,
                 )
 
                 # Send the prompt to agent pane
                 full_command = f'{command_to_use} "{prompt_text}"'
                 result = subprocess.run(
-                    ["tmux", "send-keys", "-t", f"{session_name}:agent", full_command, "C-m"],
+                    [
+                        "tmux",
+                        "send-keys",
+                        "-t",
+                        f"{session_name}:agent",
+                        full_command,
+                        "C-m",
+                    ],
                     capture_output=True,
                     text=True,
-                    check=False
+                    check=False,
                 )
                 if result.returncode != 0:
                     print(f"Error sending keys to tmux: {result.stderr}")
@@ -321,7 +371,7 @@ def execute_prompt(
                     session_name=session_name,
                     worktree_path=str(worktree_path),
                     model=command_to_use,
-                    port=selected_port
+                    port=selected_port,
                 )
     finally:
         # Cleanup cloned directory and restore original directory

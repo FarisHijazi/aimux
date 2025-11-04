@@ -2,7 +2,7 @@
 
 import subprocess
 
-from .state import StateManager
+from ..state import StateManager
 
 
 def execute_broadcast(message: str):
@@ -25,5 +25,5 @@ def execute_broadcast(message: str):
         subprocess.run(
             ["tmux", "send-keys", "-t", f"{session}:agent", message, "Enter"],
             capture_output=True,
-            check=False
+            check=False,
         )

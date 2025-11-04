@@ -2,7 +2,7 @@
 
 import subprocess
 
-from .state import StateManager
+from ..state import StateManager
 
 
 def execute_run(command: str, delete: bool = False):
@@ -23,10 +23,20 @@ def execute_run(command: str, delete: bool = False):
 
         # Create new window
         result = subprocess.run(
-            ["tmux", "new-window", "-t", session, "-P", "-F", "#{window_index}", "-c", "#{session_path}"],
+            [
+                "tmux",
+                "new-window",
+                "-t",
+                session,
+                "-P",
+                "-F",
+                "#{window_index}",
+                "-c",
+                "#{session_path}",
+            ],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
 
         if result.returncode != 0:
@@ -40,7 +50,7 @@ def execute_run(command: str, delete: bool = False):
         result = subprocess.run(
             ["tmux", "send-keys", "-t", window_target, command, "Enter"],
             capture_output=True,
-            check=False
+            check=False,
         )
 
         if result.returncode != 0:
@@ -52,7 +62,7 @@ def execute_run(command: str, delete: bool = False):
             ["tmux", "capture-pane", "-t", window_target, "-p"],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
 
         if result.returncode == 0:
@@ -65,5 +75,5 @@ def execute_run(command: str, delete: bool = False):
             subprocess.run(
                 ["tmux", "kill-window", "-t", window_target],
                 capture_output=True,
-                check=False
+                check=False,
             )

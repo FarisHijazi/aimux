@@ -34,7 +34,9 @@ def mock_git_repo(temp_dir, monkeypatch):
     os.system("git commit -m 'Initial commit' > /dev/null 2>&1")
 
     # Set remote
-    os.system("git remote add origin https://github.com/test/test-repo.git > /dev/null 2>&1")
+    os.system(
+        "git remote add origin https://github.com/test/test-repo.git > /dev/null 2>&1"
+    )
 
     yield repo_path
 

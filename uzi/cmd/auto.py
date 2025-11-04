@@ -8,7 +8,7 @@ import threading
 import time
 from typing import Dict, Optional, Set
 
-from .state import StateManager
+from ..state import StateManager
 
 
 class SessionMonitor:
@@ -41,7 +41,7 @@ class AgentWatcher:
             ["tmux", "capture-pane", "-t", f"{session_name}:agent", "-p"],
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
         if result.returncode != 0:
             return None
@@ -52,7 +52,7 @@ class AgentWatcher:
         result = subprocess.run(
             ["tmux", "send-keys", "-t", f"{session_name}:agent", keys],
             capture_output=True,
-            check=False
+            check=False,
         )
         return result.returncode == 0
 
@@ -74,13 +74,16 @@ class AgentWatcher:
             has_prompt = True
 
         # Check for general continuation prompts
-        if any(phrase in content for phrase in [
-            "Press Enter to continue",
-            "Continue? (Y/n)",
-            "Do you want to proceed?",
-            "Do you want to",
-            "Proceed? (y/N)"
-        ]):
+        if any(
+            phrase in content
+            for phrase in [
+                "Press Enter to continue",
+                "Continue? (Y/n)",
+                "Do you want to proceed?",
+                "Do you want to",
+                "Proceed? (y/N)",
+            ]
+        ):
             has_prompt = True
 
         # Special case: Allow command but not while Thinking
@@ -93,7 +96,9 @@ class AgentWatcher:
             if not monitor:
                 # First time monitoring
                 self.watched_sessions[session_name] = SessionMonitor(session_name)
-                self.watched_sessions[session_name].prev_output_hash = self.hash_content(content.encode())
+                self.watched_sessions[
+                    session_name
+                ].prev_output_hash = self.hash_content(content.encode())
                 return False, has_prompt
 
             current_hash = self.hash_content(content.encode())
@@ -133,15 +138,21 @@ class AgentWatcher:
                 # Remove sessions that are no longer active
                 for session_name in list(self.watched_sessions.keys()):
                     if session_name not in active_sessions:
-                        print(f"Session {session_name} no longer active, stopping watch")
+                        print(
+                            f"Session {session_name} no longer active, stopping watch"
+                        )
                         del self.watched_sessions[session_name]
                         # Thread will exit when it checks self.running or notices session is gone
 
                 # Start watching new sessions with dedicated threads
                 for session_name in active_sessions:
                     if session_name not in self.watched_sessions:
-                        self.watched_sessions[session_name] = SessionMonitor(session_name)
-                        thread = threading.Thread(target=self.watch_session, args=(session_name,), daemon=True)
+                        self.watched_sessions[session_name] = SessionMonitor(
+                            session_name
+                        )
+                        thread = threading.Thread(
+                            target=self.watch_session, args=(session_name,), daemon=True
+                        )
                         self.session_threads[session_name] = thread
                         thread.start()
                         print(f"Started watching session: {session_name}")

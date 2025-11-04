@@ -4,7 +4,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
-from .state import StateManager
+from ..state import StateManager
 
 
 def kill_session(session_name: str, agent_name: str, sm: StateManager) -> None:
@@ -13,15 +13,13 @@ def kill_session(session_name: str, agent_name: str, sm: StateManager) -> None:
 
     # Kill tmux session if it exists
     result = subprocess.run(
-        ["tmux", "has-session", "-t", session_name],
-        capture_output=True,
-        check=False
+        ["tmux", "has-session", "-t", session_name], capture_output=True, check=False
     )
     if result.returncode == 0:
         subprocess.run(
             ["tmux", "kill-session", "-t", session_name],
             capture_output=True,
-            check=False
+            check=False,
         )
 
     # Get worktree info
@@ -31,14 +29,14 @@ def kill_session(session_name: str, agent_name: str, sm: StateManager) -> None:
         subprocess.run(
             ["git", "worktree", "remove", "--force", worktree_info.worktree_path],
             capture_output=True,
-            check=False
+            check=False,
         )
 
         # Delete branch
         subprocess.run(
             ["git", "branch", "-D", worktree_info.branch_name],
             capture_output=True,
-            check=False
+            check=False,
         )
 
     # Delete from config store
@@ -52,7 +50,9 @@ def kill_session(session_name: str, agent_name: str, sm: StateManager) -> None:
                 shutil.rmtree(item, ignore_errors=True)
 
     # Remove worktree state directory
-    worktree_state_path = home_dir / ".local" / "share" / "uzi" / "worktree" / session_name
+    worktree_state_path = (
+        home_dir / ".local" / "share" / "uzi" / "worktree" / session_name
+    )
     if worktree_state_path.exists():
         shutil.rmtree(worktree_state_path, ignore_errors=True)
 
@@ -72,9 +72,9 @@ def kill_all(sm: StateManager) -> None:
 
     killed_count = 0
     for session_name in active_sessions:
-        parts = session_name.split('-')
+        parts = session_name.split("-")
         if len(parts) >= 2:
-            agent_name = '-'.join(parts[3:]) if parts[0] == "agent" else parts[-1]
+            agent_name = "-".join(parts[3:]) if parts[0] == "agent" else parts[-1]
             kill_session(session_name, agent_name, sm)
             killed_count += 1
             print(f"Deleted agent: {agent_name}")

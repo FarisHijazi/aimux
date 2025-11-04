@@ -5,7 +5,7 @@ import os
 import shutil
 import subprocess
 import sys
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -14,6 +14,7 @@ from typing import Dict, List, Optional
 @dataclass
 class AgentState:
     """State for a single agent session."""
+
     git_repo: str
     branch_from: str
     branch_name: str
@@ -44,7 +45,7 @@ class StateManager:
                 ["git", "config", "--get", "remote.origin.url"],
                 capture_output=True,
                 text=True,
-                check=False
+                check=False,
             )
             return result.stdout.strip()
         except Exception:
@@ -57,7 +58,7 @@ class StateManager:
                 ["git", "symbolic-ref", "refs/remotes/origin/HEAD"],
                 capture_output=True,
                 text=True,
-                check=False
+                check=False,
             )
             if result.returncode == 0:
                 ref = result.stdout.strip()
@@ -73,7 +74,7 @@ class StateManager:
         result = subprocess.run(
             ["tmux", "has-session", "-t", session_name],
             capture_output=True,
-            check=False
+            check=False,
         )
         return result.returncode == 0
 
@@ -82,7 +83,7 @@ class StateManager:
         if not self.state_path.exists():
             return []
 
-        with open(self.state_path, 'r') as f:
+        with open(self.state_path, "r") as f:
             states: Dict[str, dict] = json.load(f)
 
         current_repo = self._get_git_repo()
@@ -91,13 +92,22 @@ class StateManager:
 
         active_sessions = []
         for session_name, state in states.items():
-            if state.get("git_repo") == current_repo and self._is_active_in_tmux(session_name):
+            if state.get("git_repo") == current_repo and self._is_active_in_tmux(
+                session_name
+            ):
                 active_sessions.append(session_name)
 
         return active_sessions
 
-    def save_state(self, prompt: str, branch_name: str, session_name: str,
-                   worktree_path: str, model: str, port: int = 0) -> None:
+    def save_state(
+        self,
+        prompt: str,
+        branch_name: str,
+        session_name: str,
+        worktree_path: str,
+        model: str,
+        port: int = 0,
+    ) -> None:
         """Save agent state to disk."""
         self._ensure_state_dir()
 
@@ -105,14 +115,17 @@ class StateManager:
         states: Dict[str, dict] = {}
         if self.state_path.exists():
             try:
-                with open(self.state_path, 'r') as f:
+                with open(self.state_path, "r") as f:
                     states = json.load(f)
             except (json.JSONDecodeError, IOError) as e:
                 # Backup corrupted file
-                backup_path = self.state_path.with_suffix('.json.backup')
+                backup_path = self.state_path.with_suffix(".json.backup")
                 try:
                     shutil.copy(self.state_path, backup_path)
-                    print(f"Warning: Corrupted state file backed up to {backup_path}", file=sys.stderr)
+                    print(
+                        f"Warning: Corrupted state file backed up to {backup_path}",
+                        file=sys.stderr,
+                    )
                 except Exception:
                     pass
                 states = {}
@@ -128,7 +141,7 @@ class StateManager:
             port=port,
             model=model,
             created_at=states.get(session_name, {}).get("created_at", now),
-            updated_at=now
+            updated_at=now,
         )
 
         states[session_name] = asdict(agent_state)
@@ -137,7 +150,7 @@ class StateManager:
         self._store_worktree_branch(session_name)
 
         # Save to file
-        with open(self.state_path, 'w') as f:
+        with open(self.state_path, "w") as f:
             json.dump(states, f, indent=2)
 
     def _get_current_branch(self) -> str:
@@ -147,7 +160,7 @@ class StateManager:
                 ["git", "branch", "--show-current"],
                 capture_output=True,
                 text=True,
-                check=False
+                check=False,
             )
             return result.stdout.strip()
         except Exception:
@@ -169,12 +182,12 @@ class StateManager:
         if not self.state_path.exists():
             return
 
-        with open(self.state_path, 'r') as f:
+        with open(self.state_path, "r") as f:
             states: Dict[str, dict] = json.load(f)
 
         states.pop(session_name, None)
 
-        with open(self.state_path, 'w') as f:
+        with open(self.state_path, "w") as f:
             json.dump(states, f, indent=2)
 
     def get_worktree_info(self, session_name: str) -> Optional[AgentState]:
@@ -182,7 +195,7 @@ class StateManager:
         if not self.state_path.exists():
             return None
 
-        with open(self.state_path, 'r') as f:
+        with open(self.state_path, "r") as f:
             states: Dict[str, dict] = json.load(f)
 
         state_dict = states.get(session_name)
@@ -197,7 +210,7 @@ class StateManager:
             return {}
 
         try:
-            with open(self.state_path, 'r') as f:
+            with open(self.state_path, "r") as f:
                 states: Dict[str, dict] = json.load(f)
 
             return {name: AgentState(**state) for name, state in states.items()}

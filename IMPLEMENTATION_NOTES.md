@@ -30,14 +30,14 @@ All core features from the Go implementation have been ported, PLUS additional f
 
 ### Command Modules
 
-- **uzi/cmd_prompt.py** - Create new agent sessions (198 lines)
-- **uzi/cmd_ls.py** - List active sessions with git diff stats (151 lines)
-- **uzi/cmd_kill.py** - Terminate sessions and cleanup (110 lines)
-- **uzi/cmd_auto.py** - Auto-press Enter for prompts (185 lines)
-- **uzi/cmd_broadcast.py** - Send message to all agents (30 lines)
-- **uzi/cmd_checkpoint.py** - Merge agent changes (116 lines)
-- **uzi/cmd_run.py** - Execute command in all sessions (70 lines)
-- **uzi/cmd_reset.py** - Delete all uzi data (27 lines)
+- **uzi/prompt.py** - Create new agent sessions (198 lines)
+- **uzi/ls.py** - List active sessions with git diff stats (151 lines)
+- **uzi/kill.py** - Terminate sessions and cleanup (110 lines)
+- **uzi/auto.py** - Auto-press Enter for prompts (185 lines)
+- **uzi/broadcast.py** - Send message to all agents (30 lines)
+- **uzi/checkpoint.py** - Merge agent changes (116 lines)
+- **uzi/run.py** - Execute command in all sessions (70 lines)
+- **uzi/reset.py** - Delete all uzi data (27 lines)
 
 ## Features Beyond Go Implementation
 

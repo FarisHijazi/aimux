@@ -4,19 +4,27 @@ import argparse
 import re
 import sys
 
-from . import cmd_auto, cmd_broadcast, cmd_checkpoint, cmd_kill, cmd_ls, cmd_prompt, cmd_reset, cmd_run
-
+from .cmd import (
+    auto,
+    broadcast,
+    checkpoint,
+    kill,
+    ls,
+    prompt,
+    reset,
+    run,
+)
 
 # Command aliases matching Go implementation
 COMMAND_ALIASES = {
-    'prompt': re.compile(r'^p(ro(mpt)?)?$'),
-    'ls': re.compile(r'^l(s)?$'),
-    'kill': re.compile(r'^k(ill)?$'),
-    'reset': re.compile(r'^re(set)?$'),
-    'checkpoint': re.compile(r'^c(heckpoint)?$'),
-    'run': re.compile(r'^r(un)?$'),
-    'auto': re.compile(r'^a(uto)?$'),
-    'broadcast': re.compile(r'^b(roadcast)?$'),
+    "prompt": re.compile(r"^p(ro(mpt)?)?$"),
+    "ls": re.compile(r"^l(s)?$"),
+    "kill": re.compile(r"^k(ill)?$"),
+    "reset": re.compile(r"^re(set)?$"),
+    "checkpoint": re.compile(r"^c(heckpoint)?$"),
+    "run": re.compile(r"^r(un)?$"),
+    "auto": re.compile(r"^a(uto)?$"),
+    "broadcast": re.compile(r"^b(roadcast)?$"),
 }
 
 
@@ -31,49 +39,80 @@ def resolve_alias(cmd: str) -> str:
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        prog='uzi',
-        description='AI coding agent orchestration tool',
-        formatter_class=argparse.RawDescriptionHelpFormatter
+        prog="uzi",
+        description="AI coding agent orchestration tool",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
 
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Prompt command
-    prompt_parser = subparsers.add_parser('prompt', aliases=['p'], help='Create new agent sessions')
-    prompt_parser.add_argument('--agents', default='claude:1', help='Agents to run (e.g., claude:2,codex:1)')
-    prompt_parser.add_argument('--config', default=None, help='Path to config file')
-    prompt_parser.add_argument('--no-worktree', action='store_true', help='Copy directory instead of using git worktrees')
-    prompt_parser.add_argument('--clone', dest='clone_url', default=None, help='Clone from repository URL instead of using current repo')
-    prompt_parser.add_argument('prompt', nargs='+', help='Prompt text')
+    prompt_parser = subparsers.add_parser(
+        "prompt", aliases=["p"], help="Create new agent sessions"
+    )
+    prompt_parser.add_argument(
+        "--agents", default="claude:1", help="Agents to run (e.g., claude:2,codex:1)"
+    )
+    prompt_parser.add_argument("--config", default=None, help="Path to config file")
+    prompt_parser.add_argument(
+        "--no-worktree",
+        action="store_true",
+        help="Copy directory instead of using git worktrees",
+    )
+    prompt_parser.add_argument(
+        "--clone",
+        dest="clone_url",
+        default=None,
+        help="Clone from repository URL instead of using current repo",
+    )
+    prompt_parser.add_argument("prompt", nargs="+", help="Prompt text")
 
     # Ls command
-    ls_parser = subparsers.add_parser('ls', aliases=['l'], help='List active agent sessions')
-    ls_parser.add_argument('-w', '--watch', action='store_true', help='Watch mode - refresh every second')
-    ls_parser.add_argument('-a', '--all', action='store_true', help='Show all sessions including inactive')
+    ls_parser = subparsers.add_parser(
+        "ls", aliases=["l"], help="List active agent sessions"
+    )
+    ls_parser.add_argument(
+        "-w", "--watch", action="store_true", help="Watch mode - refresh every second"
+    )
+    ls_parser.add_argument(
+        "-a", "--all", action="store_true", help="Show all sessions including inactive"
+    )
 
     # Kill command
-    kill_parser = subparsers.add_parser('kill', aliases=['k'], help='Kill agent sessions')
-    kill_parser.add_argument('agent', help='Agent name or "all"')
+    kill_parser = subparsers.add_parser(
+        "kill", aliases=["k"], help="Kill agent sessions"
+    )
+    kill_parser.add_argument("agent", help='Agent name or "all"')
 
     # Auto command
-    auto_parser = subparsers.add_parser('auto', aliases=['a'], help='Auto-manage agent sessions')
+    auto_parser = subparsers.add_parser(
+        "auto", aliases=["a"], help="Auto-manage agent sessions"
+    )
 
     # Broadcast command
-    broadcast_parser = subparsers.add_parser('broadcast', aliases=['b'], help='Broadcast message to all agents')
-    broadcast_parser.add_argument('message', nargs='+', help='Message to broadcast')
+    broadcast_parser = subparsers.add_parser(
+        "broadcast", aliases=["b"], help="Broadcast message to all agents"
+    )
+    broadcast_parser.add_argument("message", nargs="+", help="Message to broadcast")
 
     # Checkpoint command
-    checkpoint_parser = subparsers.add_parser('checkpoint', aliases=['c'], help='Checkpoint agent changes')
-    checkpoint_parser.add_argument('agent', help='Agent name')
-    checkpoint_parser.add_argument('message', help='Commit message')
+    checkpoint_parser = subparsers.add_parser(
+        "checkpoint", aliases=["c"], help="Checkpoint agent changes"
+    )
+    checkpoint_parser.add_argument("agent", help="Agent name")
+    checkpoint_parser.add_argument("message", help="Commit message")
 
     # Run command
-    run_parser = subparsers.add_parser('run', aliases=['r'], help='Run command in all sessions')
-    run_parser.add_argument('--delete', action='store_true', help='Delete window after running')
-    run_parser.add_argument('run_command', nargs='+', help='Command to run')
+    run_parser = subparsers.add_parser(
+        "run", aliases=["r"], help="Run command in all sessions"
+    )
+    run_parser.add_argument(
+        "--delete", action="store_true", help="Delete window after running"
+    )
+    run_parser.add_argument("run_command", nargs="+", help="Command to run")
 
     # Reset command
-    reset_parser = subparsers.add_parser('reset', help='Delete all uzi data')
+    reset_parser = subparsers.add_parser("reset", help="Delete all uzi data")
 
     # Handle alias resolution manually for compatibility
     if len(sys.argv) > 1:
@@ -89,38 +128,38 @@ def main():
 
     try:
         # Route to appropriate command
-        if args.command in ['prompt', 'p']:
-            prompt_text = ' '.join(args.prompt)
-            cmd_prompt.execute_prompt(
+        if args.command in ["prompt", "p"]:
+            prompt_text = " ".join(args.prompt)
+            prompt.execute_prompt(
                 prompt_text,
                 args.agents,
                 args.config,
                 no_worktree=args.no_worktree,
-                clone_url=args.clone_url
+                clone_url=args.clone_url,
             )
 
-        elif args.command in ['ls', 'l']:
-            cmd_ls.execute_ls(watch=args.watch)
+        elif args.command in ["ls", "l"]:
+            ls.execute_ls(watch=args.watch)
 
-        elif args.command in ['kill', 'k']:
-            cmd_kill.execute_kill(args.agent)
+        elif args.command in ["kill", "k"]:
+            kill.execute_kill(args.agent)
 
-        elif args.command in ['auto', 'a']:
-            cmd_auto.execute_auto()
+        elif args.command in ["auto", "a"]:
+            auto.execute_auto()
 
-        elif args.command in ['broadcast', 'b']:
-            message = ' '.join(args.message)
-            cmd_broadcast.execute_broadcast(message)
+        elif args.command in ["broadcast", "b"]:
+            message = " ".join(args.message)
+            broadcast.execute_broadcast(message)
 
-        elif args.command in ['checkpoint', 'c']:
-            cmd_checkpoint.execute_checkpoint(args.agent, args.message)
+        elif args.command in ["checkpoint", "c"]:
+            checkpoint.execute_checkpoint(args.agent, args.message)
 
-        elif args.command in ['run', 'r']:
-            command_text = ' '.join(args.run_command)
-            cmd_run.execute_run(command_text, delete=args.delete)
+        elif args.command in ["run", "r"]:
+            command_text = " ".join(args.run_command)
+            run.execute_run(command_text, delete=args.delete)
 
-        elif args.command == 'reset':
-            cmd_reset.execute_reset()
+        elif args.command == "reset":
+            reset.execute_reset()
 
         else:
             print(f"Unknown command: {args.command}")
@@ -131,5 +170,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

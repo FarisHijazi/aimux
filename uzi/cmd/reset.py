@@ -17,7 +17,7 @@ def execute_reset():
     print(f"This will permanently delete all uzi data from {uzi_data_path}")
     response = input("Are you sure you want to continue? (y/N): ").strip().lower()
 
-    if response not in ['y', 'yes']:
+    if response not in ["y", "yes"]:
         print("Reset cancelled")
         return
 

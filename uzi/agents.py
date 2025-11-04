@@ -105,7 +105,7 @@ genesis
 douglas
 emilia
 henry
-kennedy""".strip().split('\n')
+kennedy""".strip().split("\n")
 
 
 def get_random_agent() -> str:

@@ -292,22 +292,23 @@ pytest
 │   ├── agents.py           # Agent name generation (104 unique names)
 │   ├── config.py           # YAML config loading
 │   ├── state.py            # State persistence with error recovery
-│   ├── cmd_prompt.py       # Agent creation (worktrees/copies/clone)
-│   ├── cmd_ls.py           # List & watch sessions
-│   ├── cmd_kill.py         # Terminate agents
-│   ├── cmd_auto.py         # Auto-manage with threading
-│   ├── cmd_broadcast.py    # Message all agents
-│   ├── cmd_checkpoint.py   # Git commits
-│   ├── cmd_run.py          # Execute in all sessions
-│   └── cmd_reset.py        # Delete all data
+│   ├── cmd/
+│   │   ├── prompt.py       # Agent creation (worktrees/copies/clone)
+│   │   ├── ls.py           # List & watch sessions
+│   │   ├── kill.py         # Terminate agents
+│   │   ├── auto.py         # Auto-manage with threading
+│   │   ├── broadcast.py    # Message all agents
+│   │   ├── checkpoint.py   # Git commits
+│   │   ├── run.py          # Execute in all sessions
+│   │   └── reset.py        # Delete all data
 ├── tests/
 │   ├── conftest.py         # Pytest fixtures
 │   ├── test_agents.py
 │   ├── test_config.py
 │   ├── test_state.py
 │   ├── test_cli.py
-│   ├── test_cmd_prompt.py
-│   ├── test_cmd_ls.py
+│   ├── test_prompt.py
+│   ├── test_ls.py
 │   └── ...
 ├── pyproject.toml          # Modern packaging config
 ├── uv.lock                 # Dependency lock file

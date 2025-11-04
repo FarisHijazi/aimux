@@ -24,11 +24,11 @@ The test suite includes **76 tests** covering:
 | `config.py` | 100% | Fully tested |
 | `cli.py` | 96% | Nearly complete |
 | `state.py` | 81% | Core functionality tested |
-| `cmd_prompt.py` | 87% | Core functionality tested |
-| `cmd_ls.py` | 77% | Core functionality tested |
-| `cmd_auto.py` | 19% | Hard to test without real tmux |
-| `cmd_kill.py` | 13% | Requires git/tmux integration |
-| `cmd_checkpoint.py` | 8% | Requires git integration |
+| `prompt.py` | 87% | Core functionality tested |
+| `ls.py` | 77% | Core functionality tested |
+| `auto.py` | 19% | Hard to test without real tmux |
+| `kill.py` | 13% | Requires git/tmux integration |
+| `checkpoint.py` | 8% | Requires git integration |
 | Other commands | 10-23% | Require tmux/git integration |
 
 ## Running Tests
@@ -74,8 +74,8 @@ tests/
 ├── test_config.py           # Configuration loading tests
 ├── test_state.py            # State management tests
 ├── test_cli.py              # CLI and command routing tests
-├── test_cmd_prompt.py       # Prompt command tests
-├── test_cmd_ls.py           # List command tests
+├── test_prompt.py       # Prompt command tests
+├── test_ls.py           # List command tests
 └── README.md                # This file
 ```
 

@@ -3,7 +3,7 @@
 import os
 import subprocess
 
-from .state import StateManager
+from ..state import StateManager
 
 
 def execute_checkpoint(agent_name: str, commit_message: str):
@@ -17,9 +17,9 @@ def execute_checkpoint(agent_name: str, commit_message: str):
     # Find session with matching agent name
     session_to_checkpoint = None
     for session in active_sessions:
-        parts = session.split('-')
+        parts = session.split("-")
         if len(parts) >= 4 and parts[0] == "agent":
-            session_agent_name = '-'.join(parts[3:])
+            session_agent_name = "-".join(parts[3:])
             if session_agent_name == agent_name:
                 session_to_checkpoint = session
                 break
@@ -45,7 +45,7 @@ def execute_checkpoint(agent_name: str, commit_message: str):
         cwd=current_dir,
         capture_output=True,
         text=True,
-        check=False
+        check=False,
     )
     if result.returncode != 0:
         raise RuntimeError(f"Error getting current branch: {result.stderr}")
@@ -55,23 +55,19 @@ def execute_checkpoint(agent_name: str, commit_message: str):
     result = subprocess.run(
         ["git", "show-ref", "--verify", "--quiet", f"refs/heads/{agent_branch_name}"],
         cwd=current_dir,
-        check=False
+        check=False,
     )
     if result.returncode != 0:
         raise ValueError(f"Agent branch does not exist: {agent_branch_name}")
 
     # Stage and commit changes on agent branch
-    subprocess.run(
-        ["git", "add", "."],
-        cwd=session_state.worktree_path,
-        check=False
-    )
+    subprocess.run(["git", "add", "."], cwd=session_state.worktree_path, check=False)
 
     result = subprocess.run(
         ["git", "commit", "-am", commit_message],
         cwd=session_state.worktree_path,
         capture_output=True,
-        check=False
+        check=False,
     )
     if result.returncode != 0:
         print("No unstaged changes to commit, rebasing")
@@ -82,7 +78,7 @@ def execute_checkpoint(agent_name: str, commit_message: str):
         cwd=current_dir,
         capture_output=True,
         text=True,
-        check=False
+        check=False,
     )
     if result.returncode != 0:
         raise RuntimeError(f"Error finding merge base: {result.stderr}")
@@ -94,7 +90,7 @@ def execute_checkpoint(agent_name: str, commit_message: str):
         cwd=current_dir,
         capture_output=True,
         text=True,
-        check=False
+        check=False,
     )
     if result.returncode != 0:
         raise RuntimeError(f"Error checking for changes: {result.stderr}")
@@ -104,9 +100,7 @@ def execute_checkpoint(agent_name: str, commit_message: str):
 
     # Rebase agent branch onto current branch
     result = subprocess.run(
-        ["git", "rebase", agent_branch_name],
-        cwd=current_dir,
-        check=False
+        ["git", "rebase", agent_branch_name], cwd=current_dir, check=False
     )
     if result.returncode != 0:
         raise RuntimeError("Error rebasing agent changes")
