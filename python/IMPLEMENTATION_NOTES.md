@@ -6,16 +6,18 @@ This is a complete Python 3.11+ implementation of Uzi, ported from the original 
 
 ## Implementation Status
 
-✅ **COMPLETE AND FUNCTIONAL**
+✅ **COMPLETE AND FUNCTIONAL** (with enhancements)
 
-All core features from the Go implementation have been ported:
-- Agent spawning with git worktrees
+All core features from the Go implementation have been ported, PLUS additional features:
+- Agent spawning with git worktrees **OR directory copies** (`--no-worktree`)
+- Repository cloning from URLs (`--clone`)
 - Tmux session management
 - Development server port management
-- State persistence
+- State persistence with error recovery
 - All commands (prompt, ls, kill, auto, broadcast, checkpoint, run, reset)
 - Command aliases
 - Configuration file support
+- Comprehensive test suite (83 tests)
 
 ## Architecture
 
@@ -36,6 +38,26 @@ All core features from the Go implementation have been ported:
 - **uzi/cmd_checkpoint.py** - Merge agent changes (116 lines)
 - **uzi/cmd_run.py** - Execute command in all sessions (70 lines)
 - **uzi/cmd_reset.py** - Delete all uzi data (27 lines)
+
+## Features Beyond Go Implementation
+
+### New in Python Version
+
+1. **`--no-worktree` Option**
+   - Use full directory copies instead of git worktrees
+   - Useful for non-git projects or when full isolation is needed
+   - Automatically initializes git in copied directories
+   - Stored in `~/.local/share/uzi/copies/`
+
+2. **`--clone` Option**
+   - Clone from any repository URL before creating agents
+   - Supports HTTPS and SSH URLs
+   - Works with private repositories (uses existing credentials)
+   - Automatic cleanup after agent creation
+
+3. **Combined Usage**
+   - `--clone` + `--no-worktree` for maximum isolation
+   - `--clone` + default for worktree-based workflow
 
 ## Key Improvements Over Initial Implementation
 
@@ -161,6 +183,13 @@ The implementation has been tested for:
 - ✅ Command aliases (p, l, k, a, b, c, r)
 - ✅ Error recovery (corrupted state files)
 - ✅ No duplicate agent names
+- ✅ Directory copying (recursive, excludes `.git`)
+- ✅ Repository cloning (HTTPS/SSH)
+- ✅ `--no-worktree` flag functionality
+- ✅ `--clone` flag functionality
+- ✅ Combined `--clone` + `--no-worktree` usage
+
+**Test Suite:** 83 tests, all passing
 
 ## Known Limitations
 

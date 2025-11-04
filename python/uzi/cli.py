@@ -42,6 +42,8 @@ def main():
     prompt_parser = subparsers.add_parser('prompt', aliases=['p'], help='Create new agent sessions')
     prompt_parser.add_argument('--agents', default='claude:1', help='Agents to run (e.g., claude:2,codex:1)')
     prompt_parser.add_argument('--config', default=None, help='Path to config file')
+    prompt_parser.add_argument('--no-worktree', action='store_true', help='Copy directory instead of using git worktrees')
+    prompt_parser.add_argument('--clone', dest='clone_url', default=None, help='Clone from repository URL instead of using current repo')
     prompt_parser.add_argument('prompt', nargs='+', help='Prompt text')
 
     # Ls command
@@ -89,7 +91,13 @@ def main():
         # Route to appropriate command
         if args.command in ['prompt', 'p']:
             prompt_text = ' '.join(args.prompt)
-            cmd_prompt.execute_prompt(prompt_text, args.agents, args.config)
+            cmd_prompt.execute_prompt(
+                prompt_text,
+                args.agents,
+                args.config,
+                no_worktree=args.no_worktree,
+                clone_url=args.clone_url
+            )
 
         elif args.command in ['ls', 'l']:
             cmd_ls.execute_ls(watch=args.watch)

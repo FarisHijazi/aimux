@@ -184,3 +184,137 @@ class TestExecutePrompt:
 
         # Verify save_state was called 3 times
         assert mock_sm_instance.save_state.call_count == 3
+
+
+class TestCloneRepository:
+    """Test repository cloning functionality."""
+
+    @patch('uzi.cmd_prompt.subprocess.run')
+    def test_clone_repository_success(self, mock_run):
+        """Test successful repository cloning."""
+        from pathlib import Path
+        import tempfile
+
+        mock_run.return_value = Mock(returncode=0)
+        target_dir = Path(tempfile.mkdtemp())
+
+        result = cmd_prompt.clone_repository("https://github.com/test/repo.git", target_dir)
+
+        assert result is True
+        mock_run.assert_called_once()
+        call_args = mock_run.call_args[0][0]
+        assert "git" in call_args
+        assert "clone" in call_args
+
+    @patch('uzi.cmd_prompt.subprocess.run')
+    def test_clone_repository_failure(self, mock_run):
+        """Test failed repository cloning."""
+        from pathlib import Path
+        import tempfile
+
+        mock_run.return_value = Mock(returncode=1)
+        target_dir = Path(tempfile.mkdtemp())
+
+        result = cmd_prompt.clone_repository("https://github.com/test/repo.git", target_dir)
+
+        assert result is False
+
+
+class TestCopyDirectory:
+    """Test directory copying functionality."""
+
+    def test_copy_directory_recursive_success(self, temp_dir):
+        """Test successful directory copying."""
+        source = temp_dir / "source"
+        source.mkdir()
+        (source / "file.txt").write_text("content")
+        (source / "subdir").mkdir()
+        (source / "subdir" / "nested.txt").write_text("nested")
+
+        dest = temp_dir / "dest"
+
+        result = cmd_prompt.copy_directory_recursive(source, dest)
+
+        assert result is True
+        assert dest.exists()
+        assert (dest / "file.txt").read_text() == "content"
+        assert (dest / "subdir" / "nested.txt").read_text() == "nested"
+
+    def test_copy_directory_excludes_git(self, temp_dir):
+        """Test that .git directory is excluded from copy."""
+        source = temp_dir / "source"
+        source.mkdir()
+        (source / "file.txt").write_text("content")
+        git_dir = source / ".git"
+        git_dir.mkdir()
+        (git_dir / "config").write_text("git config")
+
+        dest = temp_dir / "dest"
+
+        result = cmd_prompt.copy_directory_recursive(source, dest)
+
+        assert result is True
+        assert (dest / "file.txt").exists()
+        assert not (dest / ".git").exists()
+
+    def test_copy_directory_nonexistent_source(self, temp_dir):
+        """Test copying from non-existent source fails gracefully."""
+        source = temp_dir / "nonexistent"
+        dest = temp_dir / "dest"
+
+        result = cmd_prompt.copy_directory_recursive(source, dest)
+
+        assert result is False
+
+
+class TestExecutePromptWithOptions:
+    """Test execute_prompt with new options."""
+
+    @patch('uzi.cmd_prompt.subprocess.run')
+    @patch('uzi.cmd_prompt.copy_directory_recursive', return_value=True)
+    @patch('uzi.cmd_prompt.get_random_agent', return_value='testbot')
+    @patch('uzi.cmd_prompt.StateManager')
+    @patch('uzi.cmd_prompt.load_config')
+    def test_execute_prompt_no_worktree(self, mock_load_config, mock_state_manager,
+                                        mock_random, mock_copy, mock_run):
+        """Test prompt execution with --no-worktree flag."""
+        from uzi.config import Config
+
+        mock_load_config.return_value = Config()
+        mock_run.return_value = Mock(stdout="output\n", returncode=0)
+
+        mock_sm_instance = Mock()
+        mock_state_manager.return_value = mock_sm_instance
+
+        # Execute with no-worktree
+        cmd_prompt.execute_prompt("Test prompt", "claude:1", no_worktree=True)
+
+        # Verify copy was called instead of git worktree
+        mock_copy.assert_called()
+
+    @patch('uzi.cmd_prompt.subprocess.run')
+    @patch('uzi.cmd_prompt.clone_repository', return_value=True)
+    @patch('uzi.cmd_prompt.get_random_agent', return_value='testbot')
+    @patch('uzi.cmd_prompt.StateManager')
+    @patch('uzi.cmd_prompt.load_config')
+    @patch('uzi.cmd_prompt.os.chdir')
+    def test_execute_prompt_with_clone(self, mock_chdir, mock_load_config, mock_state_manager,
+                                       mock_random, mock_clone, mock_run):
+        """Test prompt execution with --clone flag."""
+        from uzi.config import Config
+
+        mock_load_config.return_value = Config()
+        mock_run.return_value = Mock(stdout="abc123\n", returncode=0)
+
+        mock_sm_instance = Mock()
+        mock_state_manager.return_value = mock_sm_instance
+
+        # Execute with clone URL
+        cmd_prompt.execute_prompt(
+            "Test prompt",
+            "claude:1",
+            clone_url="https://github.com/test/repo.git"
+        )
+
+        # Verify clone was called
+        mock_clone.assert_called_once()
