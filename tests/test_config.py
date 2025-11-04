@@ -1,7 +1,5 @@
 """Tests for configuration management."""
 
-import pytest
-from pathlib import Path
 from uzi import config
 
 
@@ -30,8 +28,8 @@ class TestConfig:
     def test_config_dataclass_structure(self):
         """Test Config dataclass has correct structure."""
         cfg = config.Config()
-        assert hasattr(cfg, 'dev_command')
-        assert hasattr(cfg, 'port_range')
+        assert hasattr(cfg, "dev_command")
+        assert hasattr(cfg, "port_range")
 
     def test_config_with_partial_data(self, temp_dir):
         """Test config with only some fields populated."""

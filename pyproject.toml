@@ -38,10 +38,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/devflowinc/uzi"
-Documentation = "https://github.com/devflowinc/uzi/tree/master/python"
-Repository = "https://github.com/devflowinc/uzi"
-Issues = "https://github.com/devflowinc/uzi/issues"
+Homepage = "https://github.com/FarisHijazi/aimux"
+Documentation = "https://github.com/FarisHijazi/aimux"
+Repository = "https://github.com/FarisHijazi/aimux"
+Issues = "https://github.com/FarisHijazi/aimux/issues"
 
 [project.scripts]
 uzi = "uzi.cli:main"

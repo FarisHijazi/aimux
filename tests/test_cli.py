@@ -1,8 +1,9 @@
 """Tests for CLI interface."""
 
+from unittest.mock import patch
+
 import pytest
-import sys
-from unittest.mock import Mock, patch
+
 from uzi import cli
 
 
@@ -65,80 +66,80 @@ class TestCommandAliases:
 class TestCLIMain:
     """Test main CLI function."""
 
-    @patch('uzi.cli.cmd_prompt.execute_prompt')
+    @patch("uzi.cli.cmd_prompt.execute_prompt")
     def test_main_prompt_command(self, mock_execute):
         """Test main with prompt command."""
-        with patch('sys.argv', ['uzi', 'prompt', 'test prompt']):
+        with patch("sys.argv", ["uzi", "prompt", "test prompt"]):
             cli.main()
             mock_execute.assert_called_once()
 
-    @patch('uzi.cli.cmd_ls.execute_ls')
+    @patch("uzi.cli.cmd_ls.execute_ls")
     def test_main_ls_command(self, mock_execute):
         """Test main with ls command."""
-        with patch('sys.argv', ['uzi', 'ls']):
+        with patch("sys.argv", ["uzi", "ls"]):
             cli.main()
             mock_execute.assert_called_once_with(watch=False)
 
-    @patch('uzi.cli.cmd_kill.execute_kill')
+    @patch("uzi.cli.cmd_kill.execute_kill")
     def test_main_kill_command(self, mock_execute):
         """Test main with kill command."""
-        with patch('sys.argv', ['uzi', 'kill', 'test-agent']):
+        with patch("sys.argv", ["uzi", "kill", "test-agent"]):
             cli.main()
-            mock_execute.assert_called_once_with('test-agent')
+            mock_execute.assert_called_once_with("test-agent")
 
-    @patch('uzi.cli.cmd_auto.execute_auto')
+    @patch("uzi.cli.cmd_auto.execute_auto")
     def test_main_auto_command(self, mock_execute):
         """Test main with auto command."""
-        with patch('sys.argv', ['uzi', 'auto']):
+        with patch("sys.argv", ["uzi", "auto"]):
             cli.main()
             mock_execute.assert_called_once()
 
-    @patch('uzi.cli.cmd_broadcast.execute_broadcast')
+    @patch("uzi.cli.cmd_broadcast.execute_broadcast")
     def test_main_broadcast_command(self, mock_execute):
         """Test main with broadcast command."""
-        with patch('sys.argv', ['uzi', 'broadcast', 'test', 'message']):
+        with patch("sys.argv", ["uzi", "broadcast", "test", "message"]):
             cli.main()
-            mock_execute.assert_called_once_with('test message')
+            mock_execute.assert_called_once_with("test message")
 
-    @patch('uzi.cli.cmd_checkpoint.execute_checkpoint')
+    @patch("uzi.cli.cmd_checkpoint.execute_checkpoint")
     def test_main_checkpoint_command(self, mock_execute):
         """Test main with checkpoint command."""
-        with patch('sys.argv', ['uzi', 'checkpoint', 'agent', 'commit message']):
+        with patch("sys.argv", ["uzi", "checkpoint", "agent", "commit message"]):
             cli.main()
-            mock_execute.assert_called_once_with('agent', 'commit message')
+            mock_execute.assert_called_once_with("agent", "commit message")
 
-    @patch('uzi.cli.cmd_run.execute_run')
+    @patch("uzi.cli.cmd_run.execute_run")
     def test_main_run_command(self, mock_execute):
         """Test main with run command."""
-        with patch('sys.argv', ['uzi', 'run', 'git', 'status']):
+        with patch("sys.argv", ["uzi", "run", "git", "status"]):
             cli.main()
-            mock_execute.assert_called_once_with('git status', delete=False)
+            mock_execute.assert_called_once_with("git status", delete=False)
 
-    @patch('uzi.cli.cmd_reset.execute_reset')
+    @patch("uzi.cli.cmd_reset.execute_reset")
     def test_main_reset_command(self, mock_execute):
         """Test main with reset command."""
-        with patch('sys.argv', ['uzi', 'reset']):
+        with patch("sys.argv", ["uzi", "reset"]):
             cli.main()
             mock_execute.assert_called_once()
 
     def test_main_no_command(self):
         """Test main with no command exits."""
-        with patch('sys.argv', ['uzi']):
+        with patch("sys.argv", ["uzi"]):
             with pytest.raises(SystemExit) as exc_info:
                 cli.main()
             assert exc_info.value.code == 1
 
-    @patch('uzi.cli.cmd_ls.execute_ls', side_effect=Exception("Test error"))
+    @patch("uzi.cli.cmd_ls.execute_ls", side_effect=Exception("Test error"))
     def test_main_command_error(self, mock_execute):
         """Test main handles command errors."""
-        with patch('sys.argv', ['uzi', 'ls']):
+        with patch("sys.argv", ["uzi", "ls"]):
             with pytest.raises(SystemExit) as exc_info:
                 cli.main()
             assert exc_info.value.code == 1
 
-    @patch('uzi.cli.cmd_prompt.execute_prompt')
+    @patch("uzi.cli.cmd_prompt.execute_prompt")
     def test_main_with_alias(self, mock_execute):
         """Test main works with command aliases."""
-        with patch('sys.argv', ['uzi', 'p', 'test']):
+        with patch("sys.argv", ["uzi", "p", "test"]):
             cli.main()
             mock_execute.assert_called_once()

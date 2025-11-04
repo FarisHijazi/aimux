@@ -1,6 +1,5 @@
 """Tests for agent name generation."""
 
-import pytest
 from uzi import agents
 
 
@@ -46,6 +45,6 @@ class TestAgentNames:
 
     def test_specific_agent_names_exist(self):
         """Test that specific expected names exist in the list."""
-        expected_names = ['john', 'emily', 'michael', 'sarah', 'david']
+        expected_names = ["john", "emily", "michael", "sarah", "david"]
         for name in expected_names:
             assert name in agents.AGENT_NAMES

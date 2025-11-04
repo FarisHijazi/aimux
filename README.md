@@ -1,207 +1,331 @@
-<a href="https://www.uzi.sh">
-  <img src="https://trieve.b-cdn.net/www.uzi.sh_.png">
-</a>
-<p align="center">
-  <a
-    href="https://cdn.trieve.ai/uzi-whitepaper.pdf"
-    target="_blank"
-    rel="noopener noreferrer"
-    >Whitepaper
-  </a>
-</p>
+# Uzi - Python Implementation
 
-## Installation
+A Python 3.11+ implementation of Uzi, an AI coding agent orchestration tool that helps you manage multiple AI coding agents working on the same codebase in parallel, each in isolated environments with tmux sessions.
+
+## Quick Start
+
+Try it instantly without installation:
 
 ```bash
-go install github.com/devflowinc/uzi@latest
-```
-
-Make sure that your GOBIN is in your PATH.
-
-```sh
-export PATH="$PATH:$HOME/go/bin"
+uvx --from git+https://github.com/FarisHijazi/aimux uzi --help
 ```
 
 ## Features
 
-- 🤖 Run multiple AI coding agents in parallel
-- 🌳 Automatic Git worktree management for isolated development
-- 🖥️ Tmux session management for each agent
-- 🚀 Automatic development server setup with port management
-- 📊 Real-time monitoring of agent status and code changes
-- 🔄 Automatic handling of agent prompts and confirmations
-- 🎯 Easy checkpoint and merge of agent changes
+✨ **Core Functionality**
+- 🤖 **8 Commands**: prompt, ls, kill, auto, broadcast, checkpoint, run, reset
+- 🔄 **Agent Orchestration**: Manage multiple AI agents working concurrently
+- 🌳 **Git Worktrees**: Isolated development environments sharing git objects
+- 📦 **Directory Copies**: Alternative to worktrees for maximum isolation
+- 🔗 **Clone from URLs**: Work with any GitHub/GitLab repo instantly
+- 💬 **Tmux Integration**: Each agent in its own terminal session
+- 💾 **State Persistence**: Track all agent sessions across restarts
+- ⚡ **Command Aliases**: Short forms for faster workflow (p, l, k, a, b, c, r)
+
+🛡️ **Security & Quality**
+- ✅ **Shell Injection Prevention**: All subprocess calls use list-based arguments
+- 🔒 **Input Validation**: Port ranges, agent names, paths validated
+- 💪 **Error Recovery**: Automatic state file corruption handling with backups
+- 🧪 **Comprehensive Tests**: 83 pytest tests with 57% overall coverage
+- 📊 **100% Coverage**: Core modules (agents, config) fully tested
+
+🚀 **Modern Python Packaging**
+- 📦 **uv Support**: Fast, modern dependency management with lock file
+- 🎯 **uvx Compatible**: Run without installation
+- 🐍 **pip Compatible**: Standard Python packaging with pyproject.toml
+- 🔧 **Python 3.11+**: Uses modern Python features
+
+## Installation
+
+### Using uvx (recommended - no installation required)
+
+Run directly from GitHub without cloning or installing:
+
+```bash
+# Try it out
+uvx --from git+https://github.com/FarisHijazi/aimux uzi --help
+
+# Create an alias for convenience
+alias uzi='uvx --from git+https://github.com/FarisHijazi/aimux uzi'
+```
+
+### Using uvx (local development)
+
+If you've cloned the repo:
+
+```bash
+uvx --from . uzi --help
+```
+
+### Using uv (for local development with venv)
+
+```bash
+uv sync
+# Then either activate: source .venv/bin/activate
+# Or prefix commands: uv run uzi --help
+```
+
+This creates a virtual environment with pinned dependencies via uv.lock.
+
+### Using pip (development install)
+
+```bash
+pip install -e .
+```
+
+### Using pip (from PyPI)
+
+```bash
+pip install uzi  # Coming soon
+```
 
 ## Prerequisites
 
-- **Git**: For version control and worktree management
-- **Tmux**: For terminal session management
-- **Go**: For installing
-- **Your AI tool of choice**: Such as `claude`, `codex`, etc.
+- Python 3.11+
+- Git (for version control and worktree management)
+- Tmux (for terminal session management)
+- Your AI tool of choice (such as `claude`, `codex`, etc.)
+- [uv](https://docs.astral.sh/uv/) (optional but recommended for faster dependency management)
 
 ## Configuration
 
-### uzi.yaml
-
-Create a `uzi.yaml` file in your project root to configure Uzi:
+Create a `uzi.yaml` file in your project root:
 
 ```yaml
-devCommand: cd astrobits && yarn && yarn dev --port $PORT
+devCommand: cd myproject && npm install && npm run dev -- --port $PORT
 portRange: 3000-3010
 ```
 
-#### Configuration Options
+## Basic Usage
 
-- **`devCommand`**: The command to start your development server. Use `$PORT` as a placeholder for the port number.
-  - Example for Next.js: `npm install && npm run dev -- --port $PORT`
-  - Example for Vite: `npm install && npm run dev -- --port $PORT`
-  - Example for Django: `pip install -r requirements.txt && python manage.py runserver 0.0.0.0:$PORT`
-- **`portRange`**: The range of ports Uzi can use for development servers (format: `start-end`)
-
-**Important**: The `devCommand` should include all necessary setup steps (like `npm install`, `pip install`, etc.) as each agent runs in an isolated worktree with its own dependencies.
-
-## Basic Workflow
-
-1. **Start agents with a task:**
-
-   ```bash
-   uzi prompt --agents claude:3,codex:2 "Implement a REST API for user management with authentication"
-   ```
-
-2. **Run uzi auto**
-
-   uzi auto automatically presses Enter to confirm all tool calls
-
-   ```
-   uzi auto
-   ```
-
-3. **Monitor agent progress:**
-
-   ```bash
-   uzi ls -w  # Watch mode
-   ```
-
-4. **Send additional instructions:**
-
-   ```bash
-   uzi broadcast "Make sure to add input validation"
-   ```
-
-5. **Merge completed work:**
-   ```bash
-   uzi checkpoint funny-elephant "feat: add user management API"
-   ```
-
-## Commands
-
-### `uzi prompt` (alias: `uzi p`)
-
-Creates new agent sessions with the specified prompt.
+> **Note:**
+> - If using uvx from GitHub: `uvx --from git+https://github.com/FarisHijazi/aimux uzi <command>`
+> - If installed with `uv sync`: activate venv or prefix with `uv run uzi <command>`
+> - If using uvx locally: `uvx --from . uzi <command>`
+> - If installed with pip: just use `uzi <command>`
 
 ```bash
-uzi prompt --agents claude:2,codex:1 "Build a todo app with React"
-```
+# Create agent sessions (uses git worktrees by default)
+uzi prompt --agents claude:2 "Implement a REST API"
 
-**Options:**
+# Create agent sessions with directory copies instead of worktrees
+uzi prompt --no-worktree --agents claude:2 "Implement a REST API"
 
-- `--agents`: Specify agents and counts in format `agent:count[,agent:count...]`
-  - Use `random` as agent name for random agent names
-  - Example: `--agents claude:2,random:3`
+# Create agent sessions by cloning from a repository URL
+uzi prompt --clone https://github.com/user/repo.git --agents claude:2 "Implement a REST API"
 
-### `uzi ls` (alias: `uzi l`)
+# Combine both: clone and use copies
+uzi prompt --clone https://github.com/user/repo.git --no-worktree --agents claude:2 "Implement a REST API"
 
-Lists all active agent sessions with their status.
+# List active sessions
+uzi ls
 
-```bash
-uzi ls       # List active sessions
-uzi ls -w    # Watch mode - refreshes every second
-```
+# Watch sessions
+uzi ls -w
 
-```
-AGENT    MODEL  STATUS    DIFF  ADDR                     PROMPT
-brian    codex  ready  +0/-0  http://localhost:3003  make a component that looks similar to @astrobits/src/components/Button/ that creates a Tooltip in the same style. Ensure that you include a reference to it and examples on the main page.
-gregory  codex  ready  +0/-0  http://localhost:3001  make a component that `
-```
+# Send message to all agents
+uzi broadcast "Add error handling"
 
-### `uzi auto` (alias: `uzi a`)
-
-Monitors all agent sessions and automatically handles prompts.
-
-```bash
+# Auto-handle prompts
 uzi auto
-```
 
-**Features:**
+# Kill agent
+uzi kill agent-name
 
-- Auto-presses Enter for trust prompts
-- Handles continuation confirmations
-- Runs in the background until interrupted (Ctrl+C)
+# Kill all agents
+uzi kill all
 
-### `uzi kill` (alias: `uzi k`)
+# Checkpoint changes
+uzi checkpoint agent-name "feat: add API"
 
-Terminates agent sessions and cleans up resources.
+# Run command in all sessions
+uzi run "git status"
 
-```bash
-uzi kill agent-name    # Kill specific agent
-uzi kill all          # Kill all agents
-```
-
-### `uzi run` (alias: `uzi r`)
-
-Executes a command in all active agent sessions.
-
-```bash
-uzi run "git status"              # Run in all agents
-uzi run --delete "npm test"       # Run and delete the window after
-```
-
-**Options:**
-
-- `--delete`: Remove the tmux window after running the command
-
-### `uzi broadcast` (alias: `uzi b`)
-
-Sends a message to all active agent sessions.
-
-```bash
-uzi broadcast "Please add error handling to all API calls"
-```
-
-### `uzi checkpoint` (alias: `uzi c`)
-
-Makes a commit and rebases changes from an agent's worktree into your current branch.
-
-```bash
-uzi checkpoint agent-name "feat: implement user authentication"
-```
-
-### `uzi reset`
-
-Removes all Uzi data and configuration.
-
-```bash
+# Reset all data
 uzi reset
 ```
 
-**Warning**: This deletes all data in `~/.local/share/uzi`
+## Advanced Options
 
-### Advanced Usage
+### Working Without Git Worktrees
 
-**Running different AI tools:**
-
-```bash
-uzi prompt --agents=claude:2,aider:2,cursor:1 "Refactor the authentication system"
-```
-
-**Using random agent names:**
+By default, uzi uses git worktrees to create isolated development environments. If you prefer to work with full directory copies instead:
 
 ```bash
-uzi prompt --agents=random:5 "Fix all TypeScript errors"
+uzi prompt --no-worktree --agents claude:2 "Your task"
 ```
 
-**Running tests across all agents:**
+**Benefits of `--no-worktree`:**
+- Works with non-git directories
+- Full independence from main repository
+- No git worktree limitations
+- Easier to understand for beginners
+
+**Tradeoffs:**
+- Uses more disk space (full copies)
+- Changes aren't tracked with git branches
+- Slower initial setup (full copy vs. worktree)
+
+### Cloning from Repository URLs
+
+You can create agent sessions from any git repository without cloning it first:
 
 ```bash
-uzi run "npm test"
+uzi prompt --clone https://github.com/user/repo.git --agents claude:2 "Your task"
 ```
+
+**Use cases:**
+- Quick experimentation with external projects
+- Working on repositories you don't have locally
+- Parallel development on different repos
+- CI/CD integration
+
+**Supports:**
+- HTTPS URLs: `https://github.com/user/repo.git`
+- SSH URLs: `git@github.com:user/repo.git`
+- Private repositories (uses your git credentials)
+
+### Combining Options
+
+```bash
+# Clone and use copies (maximum isolation)
+uzi prompt --clone https://github.com/user/repo.git --no-worktree --agents claude:3 "Task"
+
+# Clone with worktrees (efficient git tracking)
+uzi prompt --clone https://github.com/user/repo.git --agents claude:3 "Task"
+```
+
+## Command Aliases
+
+Short forms for faster workflow:
+
+- `uzi p` → `uzi prompt`
+- `uzi l` → `uzi ls`
+- `uzi k` → `uzi kill`
+- `uzi a` → `uzi auto`
+- `uzi b` → `uzi broadcast`
+- `uzi c` → `uzi checkpoint`
+- `uzi r` → `uzi run`
+
+Supports partial matches: `uzi pro`, `uzi prom`, `uzi prompt` all work!
+
+## All Commands
+
+1. **prompt (p)**: Create new agent sessions with prompts
+   - `uzi prompt --agents claude:2 "task"`
+   - `uzi prompt --no-worktree --agents aider:1 "task"`
+   - `uzi prompt --clone https://github.com/user/repo.git --agents claude:2 "task"`
+
+2. **ls (l)**: List active agent sessions
+   - `uzi ls` - Show all sessions
+   - `uzi ls -w` - Watch mode (live updates)
+
+3. **kill (k)**: Terminate agent sessions
+   - `uzi kill agent-name` - Kill specific agent
+   - `uzi kill all` - Kill all agents
+
+4. **auto (a)**: Auto-manage agent sessions
+   - Watches for new prompts and spawns agents automatically
+   - Concurrent monitoring with threading
+
+5. **broadcast (b)**: Send messages to all agents
+   - `uzi broadcast "Add error handling"`
+
+6. **checkpoint (c)**: Save agent work with git commits
+   - `uzi checkpoint agent-name "commit message"`
+
+7. **run (r)**: Execute commands in all agent sessions
+   - `uzi run "git status"`
+   - `uzi run "npm test"`
+
+8. **reset**: Delete all uzi data
+   - Removes all worktrees, copies, and state files
+   - Use with caution!
+
+## Development & Testing
+
+### Running Tests
+
+```bash
+# Using uv (recommended)
+uv run pytest
+
+# With coverage report
+uv run pytest --cov=uzi --cov-report=term-missing
+
+# Using pip
+pip install -e ".[dev]"
+pytest
+```
+
+### Test Suite Details
+
+- **83 tests** covering all commands and features
+- **57% overall coverage**, 100% on core modules (agents, config)
+- Tests include:
+  - Agent name uniqueness and generation
+  - Config loading and validation
+  - State persistence and recovery
+  - CLI command routing and aliases
+  - All 8 commands with various flag combinations
+  - Git worktree operations
+  - Directory copying with git exclusion
+  - Repository cloning from URLs
+  - Error handling and edge cases
+
+### Code Quality
+
+- ✅ Shell injection prevention (no `shell=True` with user input)
+- ✅ Input validation (ports, paths, agent names)
+- ✅ Automatic state file corruption recovery
+- ✅ Type hints throughout codebase
+- ✅ Comprehensive error messages
+- ✅ Cross-platform path handling
+
+## Project Structure
+
+```
+.
+├── uzi/
+│   ├── __init__.py
+│   ├── cli.py              # CLI entry point & argument parsing
+│   ├── agents.py           # Agent name generation (104 unique names)
+│   ├── config.py           # YAML config loading
+│   ├── state.py            # State persistence with error recovery
+│   ├── cmd_prompt.py       # Agent creation (worktrees/copies/clone)
+│   ├── cmd_ls.py           # List & watch sessions
+│   ├── cmd_kill.py         # Terminate agents
+│   ├── cmd_auto.py         # Auto-manage with threading
+│   ├── cmd_broadcast.py    # Message all agents
+│   ├── cmd_checkpoint.py   # Git commits
+│   ├── cmd_run.py          # Execute in all sessions
+│   └── cmd_reset.py        # Delete all data
+├── tests/
+│   ├── conftest.py         # Pytest fixtures
+│   ├── test_agents.py
+│   ├── test_config.py
+│   ├── test_state.py
+│   ├── test_cli.py
+│   ├── test_cmd_prompt.py
+│   ├── test_cmd_ls.py
+│   └── ...
+├── pyproject.toml          # Modern packaging config
+├── uv.lock                 # Dependency lock file
+├── README.md               # This file
+├── README.go.md            # Original Go implementation docs
+└── USAGE_EXAMPLES.md       # Extended usage examples
+```
+
+## Contributing
+
+This is a faithful Python port of the original Go implementation with additional features:
+- `--no-worktree` flag for directory copies
+- `--clone` flag for cloning from URLs
+- Modern Python packaging with uv support
+- Comprehensive test suite
+
+See [USAGE_EXAMPLES.md](USAGE_EXAMPLES.md) for more examples and use cases.
+
+## License
+
+BSD-3-Clause

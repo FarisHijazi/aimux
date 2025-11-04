@@ -1,10 +1,10 @@
 """Pytest configuration and fixtures."""
 
 import os
-import json
-import tempfile
 import shutil
+import tempfile
 from pathlib import Path
+
 import pytest
 
 
@@ -51,7 +51,7 @@ def mock_state_dir(temp_dir, monkeypatch):
     # Mock the state path
     monkeypatch.setenv("HOME", str(temp_dir))
 
-    yield state_dir
+    return state_dir
 
 
 @pytest.fixture
@@ -62,7 +62,7 @@ def mock_config_file(temp_dir):
 portRange: 3000-3010
 """
     config_path.write_text(config_content)
-    yield config_path
+    return config_path
 
 
 @pytest.fixture
@@ -78,6 +78,6 @@ def sample_state_data():
             "model": "claude",
             "port": 3000,
             "created_at": "2024-01-01T00:00:00",
-            "updated_at": "2024-01-01T00:00:00"
-        }
+            "updated_at": "2024-01-01T00:00:00",
+        },
     }

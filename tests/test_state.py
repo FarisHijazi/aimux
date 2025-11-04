@@ -1,10 +1,10 @@
 """Tests for state management."""
 
 import json
-import pytest
 from pathlib import Path
 from unittest.mock import Mock, patch
-from uzi.state import StateManager, AgentState
+
+from uzi.state import AgentState, StateManager
 
 
 class TestAgentState:
@@ -21,7 +21,7 @@ class TestAgentState:
             model="claude",
             created_at="2024-01-01T00:00:00",
             updated_at="2024-01-01T00:00:00",
-            port=3000
+            port=3000,
         )
 
         assert state.git_repo == "https://github.com/test/repo.git"
@@ -38,7 +38,7 @@ class TestAgentState:
             worktree_path="/tmp",
             model="test",
             created_at="2024-01-01T00:00:00",
-            updated_at="2024-01-01T00:00:00"
+            updated_at="2024-01-01T00:00:00",
         )
         assert state.port == 0
 
@@ -58,7 +58,7 @@ class TestStateManager:
         sessions = sm.get_active_sessions_for_repo()
         assert sessions == []
 
-    @patch('uzi.state.subprocess.run')
+    @patch("uzi.state.subprocess.run")
     def test_save_state_creates_file(self, mock_run, mock_state_dir):
         """Test that save_state creates state file."""
         # Mock git commands
@@ -71,21 +71,21 @@ class TestStateManager:
             session_name="test-session",
             worktree_path="/tmp/worktree",
             model="claude",
-            port=3000
+            port=3000,
         )
 
         # Check state file was created
         assert sm.state_path.exists()
 
         # Check contents
-        with open(sm.state_path, 'r') as f:
+        with open(sm.state_path) as f:
             data = json.load(f)
 
         assert "test-session" in data
         assert data["test-session"]["prompt"] == "Test prompt"
         assert data["test-session"]["port"] == 3000
 
-    @patch('uzi.state.subprocess.run')
+    @patch("uzi.state.subprocess.run")
     def test_save_state_updates_existing(self, mock_run, mock_state_dir, sample_state_data):
         """Test that save_state updates existing session."""
         mock_run.return_value = Mock(stdout="https://github.com/test/repo.git\n", returncode=0)
@@ -94,7 +94,7 @@ class TestStateManager:
 
         # Create initial state
         sm.state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(sm.state_path, 'w') as f:
+        with open(sm.state_path, "w") as f:
             json.dump(sample_state_data, f)
 
         # Update state
@@ -104,11 +104,11 @@ class TestStateManager:
             session_name="agent-test-abc-john",
             worktree_path="/tmp/test/worktree",
             model="claude",
-            port=3001
+            port=3001,
         )
 
         # Check updated
-        with open(sm.state_path, 'r') as f:
+        with open(sm.state_path) as f:
             data = json.load(f)
 
         assert data["agent-test-abc-john"]["prompt"] == "Updated prompt"
@@ -120,14 +120,14 @@ class TestStateManager:
 
         # Create initial state
         sm.state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(sm.state_path, 'w') as f:
+        with open(sm.state_path, "w") as f:
             json.dump(sample_state_data, f)
 
         # Remove state
         sm.remove_state("agent-test-abc-john")
 
         # Check removed
-        with open(sm.state_path, 'r') as f:
+        with open(sm.state_path) as f:
             data = json.load(f)
 
         assert "agent-test-abc-john" not in data
@@ -138,7 +138,7 @@ class TestStateManager:
 
         # Create state file
         sm.state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(sm.state_path, 'w') as f:
+        with open(sm.state_path, "w") as f:
             json.dump(sample_state_data, f)
 
         # Get worktree info
@@ -155,7 +155,7 @@ class TestStateManager:
 
         # Create empty state file
         sm.state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(sm.state_path, 'w') as f:
+        with open(sm.state_path, "w") as f:
             json.dump({}, f)
 
         info = sm.get_worktree_info("nonexistent")
@@ -167,7 +167,7 @@ class TestStateManager:
 
         # Create state file
         sm.state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(sm.state_path, 'w') as f:
+        with open(sm.state_path, "w") as f:
             json.dump(sample_state_data, f)
 
         states = sm.get_all_states()
@@ -188,14 +188,14 @@ class TestStateManager:
 
         # Create corrupted state file
         sm.state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(sm.state_path, 'w') as f:
+        with open(sm.state_path, "w") as f:
             f.write("invalid json{{{")
 
         # Should return empty dict instead of crashing
         states = sm.get_all_states()
         assert states == {}
 
-    @patch('uzi.state.subprocess.run')
+    @patch("uzi.state.subprocess.run")
     def test_save_state_with_corrupted_file(self, mock_run, mock_state_dir):
         """Test saving state when existing file is corrupted."""
         mock_run.return_value = Mock(stdout="https://github.com/test/repo.git\n", returncode=0)
@@ -204,7 +204,7 @@ class TestStateManager:
 
         # Create corrupted state file
         sm.state_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(sm.state_path, 'w') as f:
+        with open(sm.state_path, "w") as f:
             f.write("invalid json")
 
         # Should create backup and save new state
@@ -213,14 +213,14 @@ class TestStateManager:
             branch_name="test",
             session_name="test",
             worktree_path="/tmp",
-            model="test"
+            model="test",
         )
 
         # Check backup was created
-        backup_path = sm.state_path.with_suffix('.json.backup')
+        backup_path = sm.state_path.with_suffix(".json.backup")
         assert backup_path.exists()
 
         # Check new state is valid
-        with open(sm.state_path, 'r') as f:
+        with open(sm.state_path) as f:
             data = json.load(f)
         assert "test" in data
