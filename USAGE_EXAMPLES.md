@@ -1,4 +1,4 @@
-# Uzi Usage Examples
+# aimux Usage Examples
 
 Comprehensive examples demonstrating all features of the Python implementation.
 
@@ -21,10 +21,10 @@ The default mode uses git worktrees for efficient, space-saving isolated environ
 cd /path/to/your/project
 
 # Create 2 claude agents
-uzi prompt --agents claude:2 "Add user authentication with JWT"
+aimux prompt --agents claude:2 "Add user authentication with JWT"
 
 # List active agents
-uzi ls
+aimux ls
 
 # Output shows:
 # AGENT    MODEL   STATUS    DIFF      ADDR                     PROMPT
@@ -33,7 +33,7 @@ uzi ls
 ```
 
 **How it works:**
-- Creates git worktrees in `~/.local/share/uzi/worktrees/`
+- Creates git worktrees in `~/.local/share/aimux/worktrees/`
 - Each agent gets its own branch
 - Changes tracked by git
 - Minimal disk space (shared .git objects)
@@ -57,14 +57,14 @@ cd /path/to/non-git-project
 
 # This would fail with default worktree mode
 # But works with --no-worktree
-uzi prompt --no-worktree --agents claude:2 "Refactor the main module"
+aimux prompt --no-worktree --agents claude:2 "Refactor the main module"
 ```
 
 #### Example 2: Maximum Isolation
 
 ```bash
 # Each agent gets a completely independent copy
-uzi prompt --no-worktree --agents claude:3 "Experiment with different architectures"
+aimux prompt --no-worktree --agents claude:3 "Experiment with different architectures"
 
 # Agents can make conflicting changes without issues
 # No shared git history or objects
@@ -75,10 +75,10 @@ uzi prompt --no-worktree --agents claude:3 "Experiment with different architectu
 ```bash
 # Easier to understand for beginners
 # No need to understand git worktrees
-uzi prompt --no-worktree --agents aider:1 "Add a todo feature"
+aimux prompt --no-worktree --agents aider:1 "Add a todo feature"
 ```
 
-**Storage location:** `~/.local/share/uzi/copies/`
+**Storage location:** `~/.local/share/aimux/copies/`
 
 **What gets copied:**
 - All files and directories (recursively)
@@ -107,11 +107,11 @@ Use `--clone` when you want to:
 
 ```bash
 # Clone and create agents in one command
-uzi prompt --clone https://github.com/facebook/react.git --agents claude:2 "Add TypeScript support to hooks"
+aimux prompt --clone https://github.com/facebook/react.git --agents claude:2 "Add TypeScript support to hooks"
 ```
 
 **What happens:**
-1. Clones repo to `/tmp/uzi_clone_XXXXX/`
+1. Clones repo to `/tmp/aimux_clone_XXXXX/`
 2. Creates worktrees/copies from cloned repo
 3. Spawns agents in their environments
 4. Cleans up temporary clone directory
@@ -120,21 +120,21 @@ uzi prompt --clone https://github.com/facebook/react.git --agents claude:2 "Add 
 
 ```bash
 # Uses your git credentials (cached or credential helper)
-uzi prompt --clone https://github.com/mycompany/private-repo.git --agents claude:2 "Fix authentication bug"
+aimux prompt --clone https://github.com/mycompany/private-repo.git --agents claude:2 "Fix authentication bug"
 ```
 
 #### Example 3: Private Repository (SSH)
 
 ```bash
 # Uses your SSH keys
-uzi prompt --clone git@github.com:mycompany/private-repo.git --agents codex:2 "Optimize database queries"
+aimux prompt --clone git@github.com:mycompany/private-repo.git --agents codex:2 "Optimize database queries"
 ```
 
 #### Example 4: Specific Branch
 
 ```bash
 # Clone the repo, then specify branch in prompt
-uzi prompt --clone https://github.com/user/repo.git --agents claude:1 "Start from the develop branch and add feature"
+aimux prompt --clone https://github.com/user/repo.git --agents claude:1 "Start from the develop branch and add feature"
 ```
 
 **Note:** The clone creates worktrees by default. For full copies, combine with `--no-worktree`.
@@ -146,7 +146,7 @@ uzi prompt --clone https://github.com/user/repo.git --agents claude:1 "Start fro
 Perfect for experimentation without any git complexity:
 
 ```bash
-uzi prompt \
+aimux prompt \
   --clone https://github.com/user/repo.git \
   --no-worktree \
   --agents claude:3 \
@@ -165,7 +165,7 @@ uzi prompt \
 Best for maintaining git history while experimenting:
 
 ```bash
-uzi prompt \
+aimux prompt \
   --clone https://github.com/user/repo.git \
   --agents claude:2,codex:1 \
   "Implement the new API endpoint"
@@ -183,35 +183,35 @@ uzi prompt \
 
 ```bash
 # Create multiple agents with different AI models
-uzi prompt --agents claude:2,codex:2,aider:1 "Implement OAuth2 authentication"
+aimux prompt --agents claude:2,codex:2,aider:1 "Implement OAuth2 authentication"
 
 # Monitor their progress
-uzi ls -w  # Watch mode, refreshes every second
+aimux ls -w  # Watch mode, refreshes every second
 
 # Auto-handle prompts
-uzi auto
+aimux auto
 
 # Send additional instructions
-uzi broadcast "Make sure to add input validation"
+aimux broadcast "Make sure to add input validation"
 
 # When one finishes successfully
-uzi checkpoint john "feat: add OAuth2 authentication"
+aimux checkpoint john "feat: add OAuth2 authentication"
 ```
 
 ### Workflow 2: External Repo Testing
 
 ```bash
 # Test agents on a popular open source project
-uzi prompt \
+aimux prompt \
   --clone https://github.com/nodejs/node.git \
   --agents claude:1 \
   "Analyze the event loop implementation and suggest optimizations"
 
 # List sessions
-uzi ls
+aimux ls
 
 # Kill when done
-uzi kill all
+aimux kill all
 ```
 
 ### Workflow 3: Non-Git Experimentation
@@ -220,7 +220,7 @@ uzi kill all
 cd /path/to/legacy-code  # No git
 
 # Create isolated copies for experimentation
-uzi prompt --no-worktree --agents claude:3 "Modernize the codebase to use ES6+"
+aimux prompt --no-worktree --agents claude:3 "Modernize the codebase to use ES6+"
 
 # Each agent works independently
 # No git knowledge required
@@ -233,31 +233,31 @@ uzi prompt --no-worktree --agents claude:3 "Modernize the codebase to use ES6+"
 # ci-test-agents.sh
 
 # Clone repo and run agents for testing
-uzi prompt \
+aimux prompt \
   --clone "$CI_REPOSITORY_URL" \
   --no-worktree \
   --agents "claude:3" \
   "Review code for security vulnerabilities"
 
 # Wait for completion (monitor with polling)
-while [ "$(uzi ls | grep -c running)" -gt 0 ]; do
+while [ "$(aimux ls | grep -c running)" -gt 0 ]; do
   sleep 10
 done
 
 # Collect results
-uzi ls > agent-results.txt
+aimux ls > agent-results.txt
 ```
 
 ### Workflow 5: Multi-Repo Development
 
 ```bash
 # Work on multiple repos simultaneously
-uzi prompt --clone https://github.com/user/frontend.git --agents claude:1 "Update API client"
-uzi prompt --clone https://github.com/user/backend.git --agents claude:1 "Add new endpoint"
-uzi prompt --clone https://github.com/user/mobile.git --agents codex:1 "Update mobile app"
+aimux prompt --clone https://github.com/user/frontend.git --agents claude:1 "Update API client"
+aimux prompt --clone https://github.com/user/backend.git --agents claude:1 "Add new endpoint"
+aimux prompt --clone https://github.com/user/mobile.git --agents codex:1 "Update mobile app"
 
 # List all active sessions across repos
-uzi ls
+aimux ls
 ```
 
 ## Comparison Table
@@ -277,11 +277,11 @@ uzi ls
 
 ```bash
 # Check disk usage
-du -sh ~/.local/share/uzi/
+du -sh ~/.local/share/aimux/
 
 # Clean up old copies/worktrees
-uzi kill all
-rm -rf ~/.local/share/uzi/copies/*  # Be careful!
+aimux kill all
+rm -rf ~/.local/share/aimux/copies/*  # Be careful!
 ```
 
 ### Credential Management
@@ -300,7 +300,7 @@ ssh-add ~/.ssh/id_rsa
 
 ```bash
 # For large repos, use shallow clone
-git clone --depth=1 <url>  # Then use uzi normally
+git clone --depth=1 <url>  # Then use aimux normally
 
 # Or use sparse checkout
 git clone --filter=blob:none <url>
@@ -310,10 +310,10 @@ git clone --filter=blob:none <url>
 
 ```bash
 # Terminal 1: Watch sessions
-uzi ls -w
+aimux ls -w
 
 # Terminal 2: Auto-handle prompts
-uzi auto
+aimux auto
 
 # Terminal 3: Monitor system resources
 htop
@@ -339,7 +339,7 @@ ssh-add ~/.ssh/id_rsa  # Add if needed
 
 ```bash
 # Solution: Use worktrees instead
-uzi prompt --agents claude:2 "Task"  # Default, much faster
+aimux prompt --agents claude:2 "Task"  # Default, much faster
 
 # Or copy only what's needed
 rsync -av --exclude='node_modules' source/ dest/
@@ -349,16 +349,16 @@ rsync -av --exclude='node_modules' source/ dest/
 
 ```bash
 # Check usage
-du -sh ~/.local/share/uzi/*/
+du -sh ~/.local/share/aimux/*/
 
 # Clean up
-uzi kill all
-uzi reset  # Removes ALL uzi data (careful!)
+aimux kill all
+aimux reset  # Removes ALL aimux data (careful!)
 ```
 
 ## Summary
 
-The Python implementation of Uzi provides flexible options for agent orchestration:
+The Python implementation of aimux provides flexible options for agent orchestration:
 
 - **Default mode**: Efficient git worktrees for local development
 - **`--no-worktree`**: Full directory copies for maximum isolation

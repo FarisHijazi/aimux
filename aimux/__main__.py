@@ -1,4 +1,4 @@
-"""Allow running uzi as a module: python -m uzi."""
+"""Allow running aimux as a module: python -m aimux."""
 
 from .cli import main
 

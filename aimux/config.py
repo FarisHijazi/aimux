@@ -1,4 +1,4 @@
-"""Configuration management for uzi.yaml."""
+"""Configuration management for aimux.yaml."""
 
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,7 +9,7 @@ import yaml
 
 @dataclass
 class Config:
-    """Uzi configuration."""
+    """aimux configuration."""
 
     dev_command: Optional[str] = None
     port_range: Optional[str] = None
@@ -17,7 +17,7 @@ class Config:
 
 def get_default_config_path() -> str:
     """Return the default path for the config file."""
-    return "uzi.yaml"
+    return "aimux.yaml"
 
 
 def load_config(path: str) -> Config:

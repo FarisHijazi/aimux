@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from unittest.mock import Mock, patch
 
-from uzi.state import AgentState, StateManager
+from aimux.state import AgentState, StateManager
 
 
 class TestAgentState:
@@ -58,7 +58,7 @@ class TestStateManager:
         sessions = sm.get_active_sessions_for_repo()
         assert sessions == []
 
-    @patch("uzi.state.subprocess.run")
+    @patch("aimux.state.subprocess.run")
     def test_save_state_creates_file(self, mock_run, mock_state_dir):
         """Test that save_state creates state file."""
         # Mock git commands
@@ -87,7 +87,7 @@ class TestStateManager:
         assert data["test-session"]["prompt"] == "Test prompt"
         assert data["test-session"]["port"] == 3000
 
-    @patch("uzi.state.subprocess.run")
+    @patch("aimux.state.subprocess.run")
     def test_save_state_updates_existing(
         self, mock_run, mock_state_dir, sample_state_data
     ):
@@ -201,7 +201,7 @@ class TestStateManager:
         states = sm.get_all_states()
         assert states == {}
 
-    @patch("uzi.state.subprocess.run")
+    @patch("aimux.state.subprocess.run")
     def test_save_state_with_corrupted_file(self, mock_run, mock_state_dir):
         """Test saving state when existing file is corrupted."""
         mock_run.return_value = Mock(

@@ -1,1 +1,1 @@
-"""Test suite for uzi."""
+"""Test suite for aimux."""

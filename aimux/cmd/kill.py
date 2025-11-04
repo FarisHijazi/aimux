@@ -43,7 +43,7 @@ def kill_session(session_name: str, agent_name: str, sm: StateManager) -> None:
     home_dir = Path.home()
 
     # Remove worktree directory from config store
-    config_worktree_path = home_dir / ".local" / "share" / "uzi" / "worktrees"
+    config_worktree_path = home_dir / ".local" / "share" / "aimux" / "worktrees"
     if config_worktree_path.exists():
         for item in config_worktree_path.iterdir():
             if agent_name in item.name:
@@ -51,7 +51,7 @@ def kill_session(session_name: str, agent_name: str, sm: StateManager) -> None:
 
     # Remove worktree state directory
     worktree_state_path = (
-        home_dir / ".local" / "share" / "uzi" / "worktree" / session_name
+        home_dir / ".local" / "share" / "aimux" / "worktree" / session_name
     )
     if worktree_state_path.exists():
         shutil.rmtree(worktree_state_path, ignore_errors=True)

@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Uzi Python implementation will be documented in this file.
+All notable changes to the aimux Python implementation will be documented in this file.
 
 ## [0.2.0] - 2025-01-04
 
@@ -10,7 +10,7 @@ All notable changes to the Uzi Python implementation will be documented in this 
   - Copies entire directory recursively (excluding `.git`)
   - Initializes new git repo in copied directory
   - Useful for non-git projects or when full isolation is needed
-  - Stored in `~/.local/share/uzi/copies/` instead of `worktrees/`
+  - Stored in `~/.local/share/aimux/copies/` instead of `worktrees/`
 
 - **`--clone` flag**: Option to clone from repository URL before creating agents
   - Supports HTTPS and SSH URLs
@@ -41,7 +41,7 @@ All notable changes to the Uzi Python implementation will be documented in this 
 
 ### Added
 
-- Initial Python 3.11+ implementation of Uzi
+- Initial Python 3.11+ implementation of aimux
 - All 8 core commands: prompt, ls, kill, auto, broadcast, checkpoint, run, reset
 - Command aliases (p, l, k, a, b, c, r)
 - Git worktree management

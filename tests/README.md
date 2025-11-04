@@ -1,6 +1,6 @@
-# Uzi Test Suite
+# aimux Test Suite
 
-Comprehensive test suite for the Uzi Python implementation using pytest.
+Comprehensive test suite for the aimux Python implementation using pytest.
 
 ## Test Coverage
 
@@ -55,12 +55,12 @@ pytest tests/test_agents.py::TestAgentNames::test_agent_names_count -v
 
 ### Run with coverage
 ```bash
-pytest tests/ --cov=uzi --cov-report=term-missing
+pytest tests/ --cov=aimux --cov-report=term-missing
 ```
 
 ### Run with coverage HTML report
 ```bash
-pytest tests/ --cov=uzi --cov-report=html
+pytest tests/ --cov=aimux --cov-report=html
 open htmlcov/index.html
 ```
 
@@ -85,8 +85,8 @@ The test suite includes several useful fixtures (defined in `conftest.py`):
 
 - **`temp_dir`** - Temporary directory for test files
 - **`mock_git_repo`** - Mock git repository with initial commit
-- **`mock_state_dir`** - Mock uzi state directory
-- **`mock_config_file`** - Mock uzi.yaml configuration file
+- **`mock_state_dir`** - Mock aimux state directory
+- **`mock_config_file`** - Mock aimux.yaml configuration file
 - **`sample_state_data`** - Sample state data for testing
 
 ## Test Categories
@@ -142,13 +142,13 @@ Some functionality is difficult to test without real system integration:
 ### Adding New Tests
 
 1. Create test file: `tests/test_<module>.py`
-2. Import module: `from uzi import <module>`
+2. Import module: `from aimux import <module>`
 3. Create test class: `class Test<Feature>`
 4. Write test methods: `def test_<behavior>(self)`
 
 Example:
 ```python
-from uzi import mymodule
+from aimux import mymodule
 
 class TestMyFeature:
     def test_basic_functionality(self):
@@ -181,10 +181,10 @@ To run tests in CI/CD:
 pip install -e .[dev]
 
 # Run tests with coverage
-pytest tests/ --cov=uzi --cov-report=xml --cov-report=term
+pytest tests/ --cov=aimux --cov-report=xml --cov-report=term
 
 # Check coverage threshold (optional)
-pytest tests/ --cov=uzi --cov-fail-under=50
+pytest tests/ --cov=aimux --cov-fail-under=50
 ```
 
 ## Future Improvements

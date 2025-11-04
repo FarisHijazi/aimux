@@ -47,7 +47,7 @@ def mock_git_repo(temp_dir, monkeypatch):
 @pytest.fixture
 def mock_state_dir(temp_dir, monkeypatch):
     """Create a mock state directory."""
-    state_dir = temp_dir / "uzi_state"
+    state_dir = temp_dir / "aimux_state"
     state_dir.mkdir(parents=True)
 
     # Mock the state path
@@ -58,8 +58,8 @@ def mock_state_dir(temp_dir, monkeypatch):
 
 @pytest.fixture
 def mock_config_file(temp_dir):
-    """Create a mock uzi.yaml config file."""
-    config_path = temp_dir / "uzi.yaml"
+    """Create a mock aimux.yaml config file."""
+    config_path = temp_dir / "aimux.yaml"
     config_content = """devCommand: npm run dev -- --port $PORT
 portRange: 3000-3010
 """

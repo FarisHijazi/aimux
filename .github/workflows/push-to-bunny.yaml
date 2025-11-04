@@ -10,7 +10,7 @@ on:
     branches:
       - "main"
     paths:
-      - "uzi-site/**"
+      - "aimux-site/**"
       - "workflows/push-to-bunny.yml"
 
 jobs:
@@ -21,11 +21,11 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v4
 
-      - name: Upload Dir to Bunny 
+      - name: Upload Dir to Bunny
         env:
           BUNNY_API_KEY: ${{ secrets.BUNNY_API_KEY }}
-          STORAGE_ZONE: uzi-site
-          UPLOAD_PATH: uzi-site
+          STORAGE_ZONE: aimux-site
+          UPLOAD_PATH: aimux-site
         run: |
           find "$UPLOAD_PATH" -type f -print0 | xargs -0 -I{} -P 4 sh -c '
               file="{}"
@@ -53,4 +53,3 @@ jobs:
            --url https://api.bunny.net/pullzone/${ZONE_ID}/purgeCache \
            --header "AccessKey: ${BUNNY_NET_API_KEY}" \
            --header 'content-type: application/json'
-

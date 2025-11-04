@@ -4,13 +4,13 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from uzi.cmd import prompt
+from aimux.cmd import prompt
 
 
 class TestPortAvailability:
     """Test port availability checking."""
 
-    @patch("uzi.cmd.prompt.socket.socket")
+    @patch("aimux.cmd.prompt.socket.socket")
     def test_is_port_available_true(self, mock_socket):
         """Test checking if port is available."""
         mock_socket_instance = Mock()
@@ -20,7 +20,7 @@ class TestPortAvailability:
         assert result is True
         mock_socket_instance.bind.assert_called_once_with(("", 3000))
 
-    @patch("uzi.cmd.prompt.socket.socket")
+    @patch("aimux.cmd.prompt.socket.socket")
     def test_is_port_available_false(self, mock_socket):
         """Test checking if port is not available."""
         mock_socket_instance = Mock()
@@ -32,7 +32,7 @@ class TestPortAvailability:
 
     def test_find_available_port_first_available(self):
         """Test finding first available port."""
-        with patch("uzi.cmd.prompt.is_port_available", return_value=True):
+        with patch("aimux.cmd.prompt.is_port_available", return_value=True):
             port = prompt.find_available_port(3000, 3010, [])
             assert port == 3000
 
@@ -42,13 +42,13 @@ class TestPortAvailability:
         def port_checker(port):
             return port not in [3000, 3001]
 
-        with patch("uzi.cmd.prompt.is_port_available", side_effect=port_checker):
+        with patch("aimux.cmd.prompt.is_port_available", side_effect=port_checker):
             port = prompt.find_available_port(3000, 3010, [3000, 3001])
             assert port == 3002
 
     def test_find_available_port_none_available(self):
         """Test when no ports are available."""
-        with patch("uzi.cmd.prompt.is_port_available", return_value=False):
+        with patch("aimux.cmd.prompt.is_port_available", return_value=False):
             with pytest.raises(RuntimeError, match="No available ports"):
                 prompt.find_available_port(3000, 3001, [])
 
@@ -99,15 +99,15 @@ class TestAgentParsing:
 class TestExecutePrompt:
     """Test execute_prompt command."""
 
-    @patch("uzi.cmd.prompt.subprocess.run")
-    @patch("uzi.cmd.prompt.get_random_agent", return_value="testbot")
-    @patch("uzi.cmd.prompt.StateManager")
-    @patch("uzi.cmd.prompt.load_config")
+    @patch("aimux.cmd.prompt.subprocess.run")
+    @patch("aimux.cmd.prompt.get_random_agent", return_value="testbot")
+    @patch("aimux.cmd.prompt.StateManager")
+    @patch("aimux.cmd.prompt.load_config")
     def test_execute_prompt_basic(
         self, mock_load_config, mock_state_manager, mock_random, mock_run
     ):
         """Test basic prompt execution without dev server."""
-        from uzi.config import Config
+        from aimux.config import Config
 
         # Mock config with no dev command
         mock_load_config.return_value = Config()
@@ -129,15 +129,15 @@ class TestExecutePrompt:
         # Verify state was saved
         mock_sm_instance.save_state.assert_called_once()
 
-    @patch("uzi.cmd.prompt.subprocess.run")
-    @patch("uzi.cmd.prompt.get_random_agent", return_value="testbot")
-    @patch("uzi.cmd.prompt.StateManager")
-    @patch("uzi.cmd.prompt.load_config")
+    @patch("aimux.cmd.prompt.subprocess.run")
+    @patch("aimux.cmd.prompt.get_random_agent", return_value="testbot")
+    @patch("aimux.cmd.prompt.StateManager")
+    @patch("aimux.cmd.prompt.load_config")
     def test_execute_prompt_with_dev_server(
         self, mock_load_config, mock_state_manager, mock_random, mock_run
     ):
         """Test prompt execution with dev server."""
-        from uzi.config import Config
+        from aimux.config import Config
 
         # Mock config with dev command
         mock_config = Config(
@@ -158,7 +158,7 @@ class TestExecutePrompt:
         mock_state_manager.return_value = mock_sm_instance
 
         # Mock port availability
-        with patch("uzi.cmd.prompt.find_available_port", return_value=3000):
+        with patch("aimux.cmd.prompt.find_available_port", return_value=3000):
             # Execute prompt
             prompt.execute_prompt("Test prompt", "claude:1")
 
@@ -171,15 +171,15 @@ class TestExecutePrompt:
         with pytest.raises(ValueError, match="Prompt argument is required"):
             prompt.execute_prompt("")
 
-    @patch("uzi.cmd.prompt.subprocess.run")
-    @patch("uzi.cmd.prompt.get_random_agent")
-    @patch("uzi.cmd.prompt.StateManager")
-    @patch("uzi.cmd.prompt.load_config")
+    @patch("aimux.cmd.prompt.subprocess.run")
+    @patch("aimux.cmd.prompt.get_random_agent")
+    @patch("aimux.cmd.prompt.StateManager")
+    @patch("aimux.cmd.prompt.load_config")
     def test_execute_prompt_multiple_agents(
         self, mock_load_config, mock_state_manager, mock_random, mock_run
     ):
         """Test executing prompt with multiple agents."""
-        from uzi.config import Config
+        from aimux.config import Config
 
         mock_load_config.return_value = Config()
         mock_random.side_effect = ["agent1", "agent2", "agent3"]
@@ -198,7 +198,7 @@ class TestExecutePrompt:
 class TestCloneRepository:
     """Test repository cloning functionality."""
 
-    @patch("uzi.cmd.prompt.subprocess.run")
+    @patch("aimux.cmd.prompt.subprocess.run")
     def test_clone_repository_success(self, mock_run):
         """Test successful repository cloning."""
         import tempfile
@@ -215,7 +215,7 @@ class TestCloneRepository:
         assert "git" in call_args
         assert "clone" in call_args
 
-    @patch("uzi.cmd.prompt.subprocess.run")
+    @patch("aimux.cmd.prompt.subprocess.run")
     def test_clone_repository_failure(self, mock_run):
         """Test failed repository cloning."""
         import tempfile
@@ -279,16 +279,16 @@ class TestCopyDirectory:
 class TestExecutePromptWithOptions:
     """Test execute_prompt with new options."""
 
-    @patch("uzi.cmd.prompt.subprocess.run")
-    @patch("uzi.cmd.prompt.copy_directory_recursive", return_value=True)
-    @patch("uzi.cmd.prompt.get_random_agent", return_value="testbot")
-    @patch("uzi.cmd.prompt.StateManager")
-    @patch("uzi.cmd.prompt.load_config")
+    @patch("aimux.cmd.prompt.subprocess.run")
+    @patch("aimux.cmd.prompt.copy_directory_recursive", return_value=True)
+    @patch("aimux.cmd.prompt.get_random_agent", return_value="testbot")
+    @patch("aimux.cmd.prompt.StateManager")
+    @patch("aimux.cmd.prompt.load_config")
     def test_execute_prompt_no_worktree(
         self, mock_load_config, mock_state_manager, mock_random, mock_copy, mock_run
     ):
         """Test prompt execution with --no-worktree flag."""
-        from uzi.config import Config
+        from aimux.config import Config
 
         mock_load_config.return_value = Config()
         mock_run.return_value = Mock(stdout="output\n", returncode=0)
@@ -302,12 +302,12 @@ class TestExecutePromptWithOptions:
         # Verify copy was called instead of git worktree
         mock_copy.assert_called()
 
-    @patch("uzi.cmd.prompt.subprocess.run")
-    @patch("uzi.cmd.prompt.clone_repository", return_value=True)
-    @patch("uzi.cmd.prompt.get_random_agent", return_value="testbot")
-    @patch("uzi.cmd.prompt.StateManager")
-    @patch("uzi.cmd.prompt.load_config")
-    @patch("uzi.cmd.prompt.os.chdir")
+    @patch("aimux.cmd.prompt.subprocess.run")
+    @patch("aimux.cmd.prompt.clone_repository", return_value=True)
+    @patch("aimux.cmd.prompt.get_random_agent", return_value="testbot")
+    @patch("aimux.cmd.prompt.StateManager")
+    @patch("aimux.cmd.prompt.load_config")
+    @patch("aimux.cmd.prompt.os.chdir")
     def test_execute_prompt_with_clone(
         self,
         mock_chdir,
@@ -318,7 +318,7 @@ class TestExecutePromptWithOptions:
         mock_run,
     ):
         """Test prompt execution with --clone flag."""
-        from uzi.config import Config
+        from aimux.config import Config
 
         mock_load_config.return_value = Config()
         mock_run.return_value = Mock(stdout="abc123\n", returncode=0)

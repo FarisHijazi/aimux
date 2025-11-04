@@ -1,6 +1,6 @@
 """Tests for agent name generation."""
 
-from uzi import agents
+from aimux import agents
 
 
 class TestAgentNames:

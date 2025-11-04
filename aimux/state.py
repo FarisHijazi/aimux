@@ -32,7 +32,7 @@ class StateManager:
     def __init__(self):
         """Initialize state manager."""
         home_dir = Path.home()
-        self.state_path = home_dir / ".local" / "share" / "uzi" / "state.json"
+        self.state_path = home_dir / ".local" / "share" / "aimux" / "state.json"
 
     def _ensure_state_dir(self) -> None:
         """Ensure the state directory exists."""
@@ -169,7 +169,7 @@ class StateManager:
     def _store_worktree_branch(self, session_name: str) -> None:
         """Store the worktree branch for a session."""
         home_dir = Path.home()
-        agent_dir = home_dir / ".local" / "share" / "uzi" / "worktree" / session_name
+        agent_dir = home_dir / ".local" / "share" / "aimux" / "worktree" / session_name
         agent_dir.mkdir(parents=True, exist_ok=True)
 
         branch_file = agent_dir / "tree"

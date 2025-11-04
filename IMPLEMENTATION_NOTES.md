@@ -1,8 +1,8 @@
-# Uzi Python Implementation Notes
+# aimux Python Implementation Notes
 
 ## Overview
 
-This is a complete Python 3.11+ implementation of Uzi, ported from the original Go codebase. The implementation provides identical functionality for orchestrating AI coding agents using git worktrees and tmux sessions.
+This is a complete Python 3.11+ implementation of aimux, ported from the original Go codebase. The implementation provides identical functionality for orchestrating AI coding agents using git worktrees and tmux sessions.
 
 ## Implementation Status
 
@@ -23,21 +23,21 @@ All core features from the Go implementation have been ported, PLUS additional f
 
 ### Core Modules
 
-- **uzi/cli.py** - Main CLI entry point with argparse routing
-- **uzi/state.py** - JSON-based state management for agent sessions
-- **uzi/config.py** - YAML configuration loading
-- **uzi/agents.py** - Random agent name generation
+- **aimux/cli.py** - Main CLI entry point with argparse routing
+- **aimux/state.py** - JSON-based state management for agent sessions
+- **aimux/config.py** - YAML configuration loading
+- **aimux/agents.py** - Random agent name generation
 
 ### Command Modules
 
-- **uzi/prompt.py** - Create new agent sessions (198 lines)
-- **uzi/ls.py** - List active sessions with git diff stats (151 lines)
-- **uzi/kill.py** - Terminate sessions and cleanup (110 lines)
-- **uzi/auto.py** - Auto-press Enter for prompts (185 lines)
-- **uzi/broadcast.py** - Send message to all agents (30 lines)
-- **uzi/checkpoint.py** - Merge agent changes (116 lines)
-- **uzi/run.py** - Execute command in all sessions (70 lines)
-- **uzi/reset.py** - Delete all uzi data (27 lines)
+- **aimux/prompt.py** - Create new agent sessions (198 lines)
+- **aimux/ls.py** - List active sessions with git diff stats (151 lines)
+- **aimux/kill.py** - Terminate sessions and cleanup (110 lines)
+- **aimux/auto.py** - Auto-press Enter for prompts (185 lines)
+- **aimux/broadcast.py** - Send message to all agents (30 lines)
+- **aimux/checkpoint.py** - Merge agent changes (116 lines)
+- **aimux/run.py** - Execute command in all sessions (70 lines)
+- **aimux/reset.py** - Delete all aimux data (27 lines)
 
 ## Features Beyond Go Implementation
 
@@ -47,7 +47,7 @@ All core features from the Go implementation have been ported, PLUS additional f
    - Use full directory copies instead of git worktrees
    - Useful for non-git projects or when full isolation is needed
    - Automatically initializes git in copied directories
-   - Stored in `~/.local/share/uzi/copies/`
+   - Stored in `~/.local/share/aimux/copies/`
 
 2. **`--clone` Option**
    - Clone from any repository URL before creating agents
@@ -112,34 +112,34 @@ pip install .
 
 ```bash
 # Create agent sessions
-uzi prompt --agents claude:2 "Implement user authentication"
+aimux prompt --agents claude:2 "Implement user authentication"
 
 # List sessions
-uzi ls
+aimux ls
 
 # Watch sessions (auto-refresh)
-uzi ls -w
+aimux ls -w
 
 # Auto-handle prompts
-uzi auto
+aimux auto
 
 # Broadcast message
-uzi broadcast "Add input validation"
+aimux broadcast "Add input validation"
 
 # Run command in all sessions
-uzi run "git status"
+aimux run "git status"
 
 # Checkpoint agent changes
-uzi checkpoint agent-name "feat: add auth"
+aimux checkpoint agent-name "feat: add auth"
 
 # Kill specific agent
-uzi kill agent-name
+aimux kill agent-name
 
 # Kill all agents
-uzi kill all
+aimux kill all
 
 # Reset all data
-uzi reset
+aimux reset
 ```
 
 ## Differences from Go Implementation
@@ -231,4 +231,4 @@ BSD-3-Clause (same as Go implementation)
 
 ## Contributors
 
-Python implementation by Claude Code based on the original Go implementation by the Uzi team.
+Python implementation by Claude Code based on the original Go implementation by the aimux team.

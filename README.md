@@ -1,13 +1,13 @@
-# Uzi - Python Implementation
+# aimux - Python Implementation
 
-A Python 3.11+ implementation of Uzi, an AI coding agent orchestration tool that helps you manage multiple AI coding agents working on the same codebase in parallel, each in isolated environments with tmux sessions.
+A Python 3.11+ implementation of aimux, an AI coding agent orchestration tool that helps you manage multiple AI coding agents working on the same codebase in parallel, each in isolated environments with tmux sessions.
 
 ## Quick Start
 
 Try it instantly without installation:
 
 ```bash
-uvx --from git+https://github.com/FarisHijazi/aimux uzi --help
+uvx --from git+https://github.com/FarisHijazi/aimux aimux --help
 ```
 
 ## Features
@@ -43,10 +43,10 @@ Run directly from GitHub without cloning or installing:
 
 ```bash
 # Try it out
-uvx --from git+https://github.com/FarisHijazi/aimux uzi --help
+uvx --from git+https://github.com/FarisHijazi/aimux aimux --help
 
 # Create an alias for convenience
-alias uzi='uvx --from git+https://github.com/FarisHijazi/aimux uzi'
+alias aimux='uvx --from git+https://github.com/FarisHijazi/aimux aimux'
 ```
 
 ### Using uvx (local development)
@@ -54,7 +54,7 @@ alias uzi='uvx --from git+https://github.com/FarisHijazi/aimux uzi'
 If you've cloned the repo:
 
 ```bash
-uvx --from . uzi --help
+uvx --from . aimux --help
 ```
 
 ### Using uv (for local development with venv)
@@ -62,7 +62,7 @@ uvx --from . uzi --help
 ```bash
 uv sync
 # Then either activate: source .venv/bin/activate
-# Or prefix commands: uv run uzi --help
+# Or prefix commands: uv run aimux --help
 ```
 
 This creates a virtual environment with pinned dependencies via uv.lock.
@@ -76,7 +76,7 @@ pip install -e .
 ### Using pip (from PyPI)
 
 ```bash
-pip install uzi  # Coming soon
+pip install aimux  # Coming soon
 ```
 
 ## Prerequisites
@@ -89,7 +89,7 @@ pip install uzi  # Coming soon
 
 ## Configuration
 
-Create a `uzi.yaml` file in your project root:
+Create a `aimux.yaml` file in your project root:
 
 ```yaml
 devCommand: cd myproject && npm install && npm run dev -- --port $PORT
@@ -99,60 +99,60 @@ portRange: 3000-3010
 ## Basic Usage
 
 > **Note:**
-> - If using uvx from GitHub: `uvx --from git+https://github.com/FarisHijazi/aimux uzi <command>`
-> - If installed with `uv sync`: activate venv or prefix with `uv run uzi <command>`
-> - If using uvx locally: `uvx --from . uzi <command>`
-> - If installed with pip: just use `uzi <command>`
+> - If using uvx from GitHub: `uvx --from git+https://github.com/FarisHijazi/aimux aimux <command>`
+> - If installed with `uv sync`: activate venv or prefix with `uv run aimux <command>`
+> - If using uvx locally: `uvx --from . aimux <command>`
+> - If installed with pip: just use `aimux <command>`
 
 ```bash
 # Create agent sessions (uses git worktrees by default)
-uzi prompt --agents claude:2 "Implement a REST API"
+aimux prompt --agents claude:2 "Implement a REST API"
 
 # Create agent sessions with directory copies instead of worktrees
-uzi prompt --no-worktree --agents claude:2 "Implement a REST API"
+aimux prompt --no-worktree --agents claude:2 "Implement a REST API"
 
 # Create agent sessions by cloning from a repository URL
-uzi prompt --clone https://github.com/user/repo.git --agents claude:2 "Implement a REST API"
+aimux prompt --clone https://github.com/user/repo.git --agents claude:2 "Implement a REST API"
 
 # Combine both: clone and use copies
-uzi prompt --clone https://github.com/user/repo.git --no-worktree --agents claude:2 "Implement a REST API"
+aimux prompt --clone https://github.com/user/repo.git --no-worktree --agents claude:2 "Implement a REST API"
 
 # List active sessions
-uzi ls
+aimux ls
 
 # Watch sessions
-uzi ls -w
+aimux ls -w
 
 # Send message to all agents
-uzi broadcast "Add error handling"
+aimux broadcast "Add error handling"
 
 # Auto-handle prompts
-uzi auto
+aimux auto
 
 # Kill agent
-uzi kill agent-name
+aimux kill agent-name
 
 # Kill all agents
-uzi kill all
+aimux kill all
 
 # Checkpoint changes
-uzi checkpoint agent-name "feat: add API"
+aimux checkpoint agent-name "feat: add API"
 
 # Run command in all sessions
-uzi run "git status"
+aimux run "git status"
 
 # Reset all data
-uzi reset
+aimux reset
 ```
 
 ## Advanced Options
 
 ### Working Without Git Worktrees
 
-By default, uzi uses git worktrees to create isolated development environments. If you prefer to work with full directory copies instead:
+By default, aimux uses git worktrees to create isolated development environments. If you prefer to work with full directory copies instead:
 
 ```bash
-uzi prompt --no-worktree --agents claude:2 "Your task"
+aimux prompt --no-worktree --agents claude:2 "Your task"
 ```
 
 **Benefits of `--no-worktree`:**
@@ -171,7 +171,7 @@ uzi prompt --no-worktree --agents claude:2 "Your task"
 You can create agent sessions from any git repository without cloning it first:
 
 ```bash
-uzi prompt --clone https://github.com/user/repo.git --agents claude:2 "Your task"
+aimux prompt --clone https://github.com/user/repo.git --agents claude:2 "Your task"
 ```
 
 **Use cases:**
@@ -189,56 +189,56 @@ uzi prompt --clone https://github.com/user/repo.git --agents claude:2 "Your task
 
 ```bash
 # Clone and use copies (maximum isolation)
-uzi prompt --clone https://github.com/user/repo.git --no-worktree --agents claude:3 "Task"
+aimux prompt --clone https://github.com/user/repo.git --no-worktree --agents claude:3 "Task"
 
 # Clone with worktrees (efficient git tracking)
-uzi prompt --clone https://github.com/user/repo.git --agents claude:3 "Task"
+aimux prompt --clone https://github.com/user/repo.git --agents claude:3 "Task"
 ```
 
 ## Command Aliases
 
 Short forms for faster workflow:
 
-- `uzi p` → `uzi prompt`
-- `uzi l` → `uzi ls`
-- `uzi k` → `uzi kill`
-- `uzi a` → `uzi auto`
-- `uzi b` → `uzi broadcast`
-- `uzi c` → `uzi checkpoint`
-- `uzi r` → `uzi run`
+- `aimux p` → `aimux prompt`
+- `aimux l` → `aimux ls`
+- `aimux k` → `aimux kill`
+- `aimux a` → `aimux auto`
+- `aimux b` → `aimux broadcast`
+- `aimux c` → `aimux checkpoint`
+- `aimux r` → `aimux run`
 
-Supports partial matches: `uzi pro`, `uzi prom`, `uzi prompt` all work!
+Supports partial matches: `aimux pro`, `aimux prom`, `aimux prompt` all work!
 
 ## All Commands
 
 1. **prompt (p)**: Create new agent sessions with prompts
-   - `uzi prompt --agents claude:2 "task"`
-   - `uzi prompt --no-worktree --agents aider:1 "task"`
-   - `uzi prompt --clone https://github.com/user/repo.git --agents claude:2 "task"`
+   - `aimux prompt --agents claude:2 "task"`
+   - `aimux prompt --no-worktree --agents aider:1 "task"`
+   - `aimux prompt --clone https://github.com/user/repo.git --agents claude:2 "task"`
 
 2. **ls (l)**: List active agent sessions
-   - `uzi ls` - Show all sessions
-   - `uzi ls -w` - Watch mode (live updates)
+   - `aimux ls` - Show all sessions
+   - `aimux ls -w` - Watch mode (live updates)
 
 3. **kill (k)**: Terminate agent sessions
-   - `uzi kill agent-name` - Kill specific agent
-   - `uzi kill all` - Kill all agents
+   - `aimux kill agent-name` - Kill specific agent
+   - `aimux kill all` - Kill all agents
 
 4. **auto (a)**: Auto-manage agent sessions
    - Watches for new prompts and spawns agents automatically
    - Concurrent monitoring with threading
 
 5. **broadcast (b)**: Send messages to all agents
-   - `uzi broadcast "Add error handling"`
+   - `aimux broadcast "Add error handling"`
 
 6. **checkpoint (c)**: Save agent work with git commits
-   - `uzi checkpoint agent-name "commit message"`
+   - `aimux checkpoint agent-name "commit message"`
 
 7. **run (r)**: Execute commands in all agent sessions
-   - `uzi run "git status"`
-   - `uzi run "npm test"`
+   - `aimux run "git status"`
+   - `aimux run "npm test"`
 
-8. **reset**: Delete all uzi data
+8. **reset**: Delete all aimux data
    - Removes all worktrees, copies, and state files
    - Use with caution!
 
@@ -251,7 +251,7 @@ Supports partial matches: `uzi pro`, `uzi prom`, `uzi prompt` all work!
 uv run pytest
 
 # With coverage report
-uv run pytest --cov=uzi --cov-report=term-missing
+uv run pytest --cov=aimux --cov-report=term-missing
 
 # Using pip
 pip install -e ".[dev]"
@@ -286,7 +286,7 @@ pytest
 
 ```
 .
-├── uzi/
+├── aimux/
 │   ├── __init__.py
 │   ├── cli.py              # CLI entry point & argument parsing
 │   ├── agents.py           # Agent name generation (104 unique names)

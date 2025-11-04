@@ -1,6 +1,6 @@
 """Tests for configuration management."""
 
-from uzi import config
+from aimux import config
 
 
 class TestConfig:
@@ -9,7 +9,7 @@ class TestConfig:
     def test_get_default_config_path(self):
         """Test that default config path is returned."""
         path = config.get_default_config_path()
-        assert path == "uzi.yaml"
+        assert path == "aimux.yaml"
 
     def test_load_config_nonexistent_file(self):
         """Test loading config from non-existent file returns empty config."""

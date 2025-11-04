@@ -132,7 +132,7 @@ def execute_prompt(
     clone_source_dir = None
     if clone_url:
         print(f"Cloning repository from {clone_url}...")
-        clone_source_dir = Path(tempfile.mkdtemp(prefix="uzi_clone_"))
+        clone_source_dir = Path(tempfile.mkdtemp(prefix="aimux_clone_"))
         if not clone_repository(clone_url, clone_source_dir):
             print(f"Failed to clone repository from {clone_url}")
             if clone_source_dir.exists():
@@ -205,9 +205,9 @@ def execute_prompt(
                 # Create worktree/copy path
                 home_dir = Path.home()
                 if no_worktree:
-                    base_dir = home_dir / ".local" / "share" / "uzi" / "copies"
+                    base_dir = home_dir / ".local" / "share" / "aimux" / "copies"
                 else:
-                    base_dir = home_dir / ".local" / "share" / "uzi" / "worktrees"
+                    base_dir = home_dir / ".local" / "share" / "aimux" / "worktrees"
                 base_dir.mkdir(parents=True, exist_ok=True)
                 worktree_path = base_dir / worktree_name
 
@@ -306,7 +306,7 @@ def execute_prompt(
                                     "$PORT", str(selected_port)
                                 )
 
-                                # Create uzi-dev window
+                                # Create aimux-dev window
                                 subprocess.run(
                                     [
                                         "tmux",
@@ -314,7 +314,7 @@ def execute_prompt(
                                         "-t",
                                         session_name,
                                         "-n",
-                                        "uzi-dev",
+                                        "aimux-dev",
                                         "-c",
                                         str(worktree_path),
                                     ],
@@ -328,7 +328,7 @@ def execute_prompt(
                                         "tmux",
                                         "send-keys",
                                         "-t",
-                                        f"{session_name}:uzi-dev",
+                                        f"{session_name}:aimux-dev",
                                         dev_cmd,
                                         "C-m",
                                     ],

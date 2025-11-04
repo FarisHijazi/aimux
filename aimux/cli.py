@@ -1,4 +1,4 @@
-"""Main CLI entry point for uzi."""
+"""Main CLI entry point for aimux."""
 
 import argparse
 import re
@@ -39,7 +39,7 @@ def resolve_alias(cmd: str) -> str:
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        prog="uzi",
+        prog="aimux",
         description="AI coding agent orchestration tool",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -112,7 +112,7 @@ def main():
     run_parser.add_argument("run_command", nargs="+", help="Command to run")
 
     # Reset command
-    reset_parser = subparsers.add_parser("reset", help="Delete all uzi data")
+    reset_parser = subparsers.add_parser("reset", help="Delete all aimux data")
 
     # Handle alias resolution manually for compatibility
     if len(sys.argv) > 1:
@@ -166,7 +166,7 @@ def main():
             sys.exit(1)
 
     except Exception as e:
-        print(f"uzi: error: {e}", file=sys.stderr)
+        print(f"aimux: error: {e}", file=sys.stderr)
         sys.exit(1)
 
 
