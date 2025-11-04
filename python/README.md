@@ -4,9 +4,35 @@ A Python implementation of Uzi, an AI coding agent orchestration tool.
 
 ## Installation
 
+### Using pip (development install)
+
 ```bash
 cd python
 pip install -e .
+```
+
+### Using uv (recommended)
+
+```bash
+cd python
+uv sync
+```
+
+This will create a virtual environment and install uzi with all dependencies.
+
+### Using uvx (no installation required)
+
+Run uzi directly without installing:
+
+```bash
+cd python
+uvx --from . uzi --help
+```
+
+### Using pip (from PyPI)
+
+```bash
+pip install uzi
 ```
 
 ## Prerequisites
@@ -15,6 +41,7 @@ pip install -e .
 - Git (for version control and worktree management)
 - Tmux (for terminal session management)
 - Your AI tool of choice (such as `claude`, `codex`, etc.)
+- [uv](https://docs.astral.sh/uv/) (optional but recommended for faster dependency management)
 
 ## Configuration
 
@@ -26,6 +53,8 @@ portRange: 3000-3010
 ```
 
 ## Basic Usage
+
+> **Note:** If you installed with `uv sync`, either activate the venv with `source .venv/bin/activate` or prefix commands with `uv run` (e.g., `uv run uzi --help`). If you used uvx, just replace `uzi` with `uvx --from . uzi`.
 
 ```bash
 # Create agent sessions (uses git worktrees by default)
