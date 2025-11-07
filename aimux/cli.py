@@ -55,15 +55,27 @@ def main():
     )
     prompt_parser.add_argument("--config", default=None, help="Path to config file")
     prompt_parser.add_argument(
+        "--init-method",
+        choices=["worktree", "copy", "clone"],
+        default=None,
+        help="Project initialization method: 'worktree' (git worktree), 'copy' (hard copy), or 'clone' (from URL)",
+    )
+    prompt_parser.add_argument(
+        "--url",
+        default=None,
+        help="Repository URL (required when --init-method=clone)",
+    )
+    # Legacy flags for backward compatibility
+    prompt_parser.add_argument(
         "--no-worktree",
         action="store_true",
-        help="Copy directory instead of using git worktrees",
+        help="[DEPRECATED] Use --init-method=copy instead",
     )
     prompt_parser.add_argument(
         "--clone",
         dest="clone_url",
         default=None,
-        help="Clone from repository URL instead of using current repo",
+        help="[DEPRECATED] Use --init-method=clone --url=URL instead",
     )
     prompt_parser.add_argument("prompt", nargs="+", help="Prompt text")
 
@@ -134,6 +146,8 @@ def main():
                 prompt_text,
                 args.agents,
                 args.config,
+                init_method=args.init_method,
+                url=args.url,
                 no_worktree=args.no_worktree,
                 clone_url=args.clone_url,
             )

@@ -2,6 +2,45 @@
 
 All notable changes to the aimux Python implementation will be documented in this file.
 
+## [0.3.0] - 2025-11-07
+
+### Added
+
+- **`--init-method` parameter**: Explicit, user-friendly way to choose project initialization method
+  - Three options: `worktree` (default), `copy`, `clone`
+  - Clear help text explaining each method
+  - Automatic validation: `--url` required when using `clone` method
+  - User-friendly output showing which method is being used
+
+- **`--url` parameter**: Specify repository URL when using `--init-method=clone`
+  - Works with HTTPS and SSH URLs
+  - Required when `--init-method=clone` is specified
+
+- **Comprehensive test suite** (`test_init_methods.py`):
+  - Tests all three initialization methods
+  - Validates error handling and validation logic
+  - Tests backward compatibility with legacy flags
+  - All 5 tests passing
+
+### Changed
+
+- `execute_prompt()` enhanced with new `init_method` and `url` parameters
+- Improved user feedback with initialization method descriptions
+- Better error messages for invalid configurations
+
+### Deprecated
+
+- `--no-worktree` flag (use `--init-method=copy` instead)
+- `--clone URL` flag (use `--init-method=clone --url=URL` instead)
+
+Both deprecated flags still work and show deprecation warnings to guide users to the new syntax.
+
+### Documentation
+
+- Added `CLAUDE.md` documenting the session changes
+- Added usage examples for all three initialization methods
+- Added migration guide for users of deprecated flags
+
 ## [0.2.0] - 2025-01-04
 
 ### Added

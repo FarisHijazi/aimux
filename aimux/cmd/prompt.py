@@ -95,6 +95,8 @@ def execute_prompt(
     prompt_text: str,
     agents_str: str = "claude:1",
     config_path: str = None,
+    init_method: Optional[str] = None,
+    url: Optional[str] = None,
     no_worktree: bool = False,
     clone_url: Optional[str] = None,
 ):
@@ -104,11 +106,47 @@ def execute_prompt(
         prompt_text: The prompt to send to agents
         agents_str: Agent specification (e.g., "claude:2,codex:1")
         config_path: Path to config file
-        no_worktree: If True, copy directory instead of using git worktrees
-        clone_url: If provided, clone from this URL instead of using current repo
+        init_method: Initialization method: 'worktree', 'copy', or 'clone'
+        url: Repository URL (required when init_method='clone')
+        no_worktree: [DEPRECATED] If True, copy directory instead of using git worktrees
+        clone_url: [DEPRECATED] If provided, clone from this URL instead of using current repo
     """
     if not prompt_text:
         raise ValueError("Prompt argument is required")
+
+    # Handle backward compatibility and determine actual initialization method
+    actual_init_method = init_method
+    actual_url = url
+
+    # Legacy flag handling
+    if clone_url and not actual_init_method:
+        print("Warning: --clone is deprecated. Use --init-method=clone --url=URL instead")
+        actual_init_method = "clone"
+        actual_url = clone_url
+    elif no_worktree and not actual_init_method:
+        print("Warning: --no-worktree is deprecated. Use --init-method=copy instead")
+        actual_init_method = "copy"
+
+    # Default to worktree if not specified
+    if not actual_init_method:
+        actual_init_method = "worktree"
+
+    # Validate clone method has URL
+    if actual_init_method == "clone" and not actual_url:
+        raise ValueError("--url is required when using --init-method=clone")
+
+    # Show which initialization method is being used
+    method_descriptions = {
+        "worktree": "git worktrees (linked to current repository)",
+        "copy": "hard copy of project directory",
+        "clone": f"git clone from {actual_url}",
+    }
+    print(f"Initialization method: {method_descriptions.get(actual_init_method, actual_init_method)}")
+
+    # Convert to flags for compatibility with existing code
+    use_worktree = actual_init_method == "worktree"
+    use_clone = actual_init_method == "clone"
+    clone_source_url = actual_url if use_clone else None
 
     # Load config
     if config_path is None:
@@ -130,11 +168,11 @@ def execute_prompt(
 
     # Handle cloning from URL if specified
     clone_source_dir = None
-    if clone_url:
-        print(f"Cloning repository from {clone_url}...")
+    if use_clone:
+        print(f"Cloning repository from {clone_source_url}...")
         clone_source_dir = Path(tempfile.mkdtemp(prefix="aimux_clone_"))
-        if not clone_repository(clone_url, clone_source_dir):
-            print(f"Failed to clone repository from {clone_url}")
+        if not clone_repository(clone_source_url, clone_source_dir):
+            print(f"Failed to clone repository from {clone_source_url}")
             if clone_source_dir.exists():
                 shutil.rmtree(clone_source_dir, ignore_errors=True)
             return
@@ -161,7 +199,7 @@ def execute_prompt(
                 current_source = Path(os.getcwd())
 
                 # Get git hash and repo name
-                if no_worktree:
+                if not use_worktree:
                     # For directory copy mode, use timestamp as identifier
                     git_hash = f"copy-{int(time.time())}"
                     repo_name = current_source.name
@@ -204,15 +242,33 @@ def execute_prompt(
 
                 # Create worktree/copy path
                 home_dir = Path.home()
-                if no_worktree:
-                    base_dir = home_dir / ".local" / "share" / "aimux" / "copies"
-                else:
+                if use_worktree:
                     base_dir = home_dir / ".local" / "share" / "aimux" / "worktrees"
+                else:
+                    base_dir = home_dir / ".local" / "share" / "aimux" / "copies"
                 base_dir.mkdir(parents=True, exist_ok=True)
                 worktree_path = base_dir / worktree_name
 
                 # Create git worktree or copy directory
-                if no_worktree:
+                if use_worktree:
+                    print(f"Creating git worktree at {worktree_path}...")
+                    result = subprocess.run(
+                        [
+                            "git",
+                            "worktree",
+                            "add",
+                            "-b",
+                            branch_name,
+                            str(worktree_path),
+                        ],
+                        capture_output=True,
+                        text=True,
+                        check=False,
+                    )
+                    if result.returncode != 0:
+                        print(f"Error creating git worktree: {result.stderr}")
+                        continue
+                else:
                     print(f"Copying directory to {worktree_path}...")
                     if not copy_directory_recursive(current_source, worktree_path):
                         print(f"Error copying directory")
@@ -238,23 +294,6 @@ def execute_prompt(
                             capture_output=True,
                             check=False,
                         )
-                else:
-                    result = subprocess.run(
-                        [
-                            "git",
-                            "worktree",
-                            "add",
-                            "-b",
-                            branch_name,
-                            str(worktree_path),
-                        ],
-                        capture_output=True,
-                        text=True,
-                        check=False,
-                    )
-                    if result.returncode != 0:
-                        print(f"Error creating git worktree: {result.stderr}")
-                        continue
 
                 # Create tmux session
                 result = subprocess.run(
@@ -375,7 +414,7 @@ def execute_prompt(
                 )
     finally:
         # Cleanup cloned directory and restore original directory
-        if clone_url and clone_source_dir:
+        if use_clone and clone_source_dir:
             os.chdir(original_dir)
             if clone_source_dir.exists():
                 shutil.rmtree(clone_source_dir, ignore_errors=True)

@@ -109,13 +109,14 @@ portRange: 3000-3010
 aimux prompt --agents claude:2 "Implement a REST API"
 
 # Create agent sessions with directory copies instead of worktrees
-aimux prompt --no-worktree --agents claude:2 "Implement a REST API"
+aimux prompt --init-method=copy --agents claude:2 "Implement a REST API"
 
 # Create agent sessions by cloning from a repository URL
-aimux prompt --clone https://github.com/user/repo.git --agents claude:2 "Implement a REST API"
+aimux prompt --init-method=clone --url=https://github.com/user/repo.git --agents claude:2 "Implement a REST API"
 
-# Combine both: clone and use copies
-aimux prompt --clone https://github.com/user/repo.git --no-worktree --agents claude:2 "Implement a REST API"
+# Legacy syntax (deprecated but still supported)
+aimux prompt --no-worktree --agents claude:2 "Implement a REST API"
+aimux prompt --clone https://github.com/user/repo.git --agents claude:2 "Implement a REST API"
 
 # List active sessions
 aimux ls
@@ -147,15 +148,31 @@ aimux reset
 
 ## Advanced Options
 
-### Working Without Git Worktrees
+### Choosing Project Initialization Method
 
-By default, aimux uses git worktrees to create isolated development environments. If you prefer to work with full directory copies instead:
+Aimux supports three methods to initialize project environments for agents. Use the `--init-method` parameter to choose:
 
+#### 1. Git Worktrees (Default)
 ```bash
-aimux prompt --no-worktree --agents claude:2 "Your task"
+aimux prompt --init-method=worktree --agents claude:2 "Your task"
+# Or simply omit --init-method (worktree is default)
+aimux prompt --agents claude:2 "Your task"
 ```
 
-**Benefits of `--no-worktree`:**
+**Benefits:**
+- Minimal disk space (shares git objects)
+- Fast setup
+- All changes tracked in git branches
+- Easy to merge back to main
+
+**Best for:** Regular git projects where you want proper version control
+
+#### 2. Hard Copy
+```bash
+aimux prompt --init-method=copy --agents claude:2 "Your task"
+```
+
+**Benefits:**
 - Works with non-git directories
 - Full independence from main repository
 - No git worktree limitations
@@ -163,37 +180,43 @@ aimux prompt --no-worktree --agents claude:2 "Your task"
 
 **Tradeoffs:**
 - Uses more disk space (full copies)
-- Changes aren't tracked with git branches
+- Changes aren't automatically tracked with git branches
 - Slower initial setup (full copy vs. worktree)
 
-### Cloning from Repository URLs
+**Best for:** Non-git projects or when you need complete isolation
 
-You can create agent sessions from any git repository without cloning it first:
+#### 3. Clone from URL
+```bash
+aimux prompt --init-method=clone --url=https://github.com/user/repo.git --agents claude:2 "Your task"
+```
+
+**Benefits:**
+- Work on any GitHub/GitLab repository instantly
+- No need to have the repo cloned locally
+- Supports both public and private repositories
+- Automatic cleanup after agent creation
+
+**Best for:** Working on repositories you don't have locally, or testing changes on external projects
+
+### Legacy Syntax (Deprecated)
+
+For backward compatibility, the following flags still work but show deprecation warnings:
 
 ```bash
+# Old way (still works)
+aimux prompt --no-worktree --agents claude:2 "Your task"
 aimux prompt --clone https://github.com/user/repo.git --agents claude:2 "Your task"
+
+# New way (recommended)
+aimux prompt --init-method=copy --agents claude:2 "Your task"
+aimux prompt --init-method=clone --url=https://github.com/user/repo.git --agents claude:2 "Your task"
 ```
 
-**Use cases:**
-- Quick experimentation with external projects
-- Working on repositories you don't have locally
-- Parallel development on different repos
-- CI/CD integration
+### Combining Methods
 
-**Supports:**
-- HTTPS URLs: `https://github.com/user/repo.git`
-- SSH URLs: `git@github.com:user/repo.git`
-- Private repositories (uses your git credentials)
+Note: When using `--init-method=clone`, the cloned repository is temporary. After cloning, aimux will create either a worktree or a copy from the cloned repository depending on your choice (worktree by default).
 
-### Combining Options
-
-```bash
-# Clone and use copies (maximum isolation)
-aimux prompt --clone https://github.com/user/repo.git --no-worktree --agents claude:3 "Task"
-
-# Clone with worktrees (efficient git tracking)
-aimux prompt --clone https://github.com/user/repo.git --agents claude:3 "Task"
-```
+The clone method doesn't support combining with worktree/copy - it always creates a copy of the cloned repository since the source is temporary.
 
 ## Command Aliases
 
