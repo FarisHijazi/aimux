@@ -197,6 +197,124 @@ def test_backward_compatibility():
         return False
 
 
+def test_short_flags():
+    """Test short flags -m and -u."""
+    print("\n" + "=" * 60)
+    print("TEST 6: Short Flags (-m and -u)")
+    print("=" * 60)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "aimux",
+            "prompt",
+            "-m",
+            "copy",
+            "--agents=echo:1",
+            "exit",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=10,
+    )
+
+    print("STDOUT:", result.stdout)
+    if result.stderr:
+        print("STDERR:", result.stderr)
+
+    # Check that short flag works
+    if "hard copy" in result.stdout:
+        print("✓ Short flag -m works correctly")
+        return True
+    else:
+        print("✗ Short flag -m not working")
+        return False
+
+
+def test_url_implies_clone():
+    """Test that --url implies clone method."""
+    print("\n" + "=" * 60)
+    print("TEST 7: URL Implies Clone")
+    print("=" * 60)
+
+    test_repo = "https://github.com/octocat/Hello-World.git"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "aimux",
+            "prompt",
+            "-u",
+            test_repo,
+            "--agents=echo:1",
+            "exit",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+
+    print("STDOUT:", result.stdout)
+    if result.stderr:
+        print("STDERR:", result.stderr)
+
+    # Check that clone is auto-detected
+    if "git clone" in result.stdout and test_repo in result.stdout:
+        print("✓ URL automatically implies clone method")
+        return True
+    else:
+        print("✗ URL did not auto-detect clone method")
+        return False
+
+
+def test_config_default():
+    """Test configurable default init method."""
+    print("\n" + "=" * 60)
+    print("TEST 8: Configurable Default Init Method")
+    print("=" * 60)
+
+    # Create a temporary config file
+    config_content = """defaultInitMethod: copy
+"""
+    config_path = Path("test_aimux.yaml")
+    config_path.write_text(config_content)
+
+    try:
+        result = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "aimux",
+                "prompt",
+                "--config",
+                "test_aimux.yaml",
+                "--agents=echo:1",
+                "exit",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+
+        print("STDOUT:", result.stdout)
+        if result.stderr:
+            print("STDERR:", result.stderr)
+
+        # Check that config default is used
+        if "hard copy" in result.stdout:
+            print("✓ Config default init method works correctly")
+            return True
+        else:
+            print("✗ Config default init method not working")
+            return False
+    finally:
+        # Clean up test config
+        if config_path.exists():
+            config_path.unlink()
+
+
 def main():
     """Run all tests."""
     print("Project Initialization Methods - Test Suite")
@@ -214,6 +332,9 @@ def main():
         results.append(("Copy Method", test_copy_method()))
         results.append(("Clone Method", test_clone_method()))
         results.append(("Backward Compatibility", test_backward_compatibility()))
+        results.append(("Short Flags", test_short_flags()))
+        results.append(("URL Implies Clone", test_url_implies_clone()))
+        results.append(("Config Default", test_config_default()))
     except Exception as e:
         print(f"\n✗ Test suite failed with error: {e}")
         import traceback

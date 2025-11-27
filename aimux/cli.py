@@ -55,15 +55,17 @@ def main():
     )
     prompt_parser.add_argument("--config", default=None, help="Path to config file")
     prompt_parser.add_argument(
+        "-m",
         "--init-method",
         choices=["worktree", "copy", "clone"],
         default=None,
         help="Project initialization method: 'worktree' (git worktree), 'copy' (hard copy), or 'clone' (from URL)",
     )
     prompt_parser.add_argument(
+        "-u",
         "--url",
         default=None,
-        help="Repository URL (required when --init-method=clone)",
+        help="Repository URL (implies --init-method=clone if not specified)",
     )
     # Legacy flags for backward compatibility
     prompt_parser.add_argument(

@@ -6,21 +6,39 @@ All notable changes to the aimux Python implementation will be documented in thi
 
 ### Added
 
-- **`--init-method` parameter**: Explicit, user-friendly way to choose project initialization method
+- **`--init-method` / `-m` parameter**: Explicit, user-friendly way to choose project initialization method
   - Three options: `worktree` (default), `copy`, `clone`
+  - Short flag `-m` for frequent use
   - Clear help text explaining each method
   - Automatic validation: `--url` required when using `clone` method
   - User-friendly output showing which method is being used
 
-- **`--url` parameter**: Specify repository URL when using `--init-method=clone`
+- **`--url` / `-u` parameter**: Specify repository URL
+  - Short flag `-u` for convenient use
+  - **Auto-detection**: Automatically implies `--init-method=clone` when provided
   - Works with HTTPS and SSH URLs
-  - Required when `--init-method=clone` is specified
+  - Just use `-u URL` - no need to specify `-m clone` explicitly!
+
+- **Configurable default initialization method**:
+  - Set `defaultInitMethod: copy|worktree|clone` in `aimux.yaml`
+  - Applies when no explicit method specified
+  - Validation with fallback to `worktree` for invalid values
+
+- **Smart precedence system** for determining init method:
+  1. Explicit `--init-method` flag (highest priority)
+  2. Legacy flags (`--no-worktree` or `--clone`)
+  3. Auto-detection from `--url` flag
+  4. Config file `defaultInitMethod`
+  5. Default to `worktree` (lowest priority)
 
 - **Comprehensive test suite** (`test_init_methods.py`):
   - Tests all three initialization methods
   - Validates error handling and validation logic
   - Tests backward compatibility with legacy flags
-  - All 5 tests passing
+  - Tests short flags functionality
+  - Tests URL auto-detection
+  - Tests config default behavior
+  - All 8 tests passing
 
 ### Changed
 

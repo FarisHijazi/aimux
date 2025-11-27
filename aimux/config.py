@@ -13,6 +13,7 @@ class Config:
 
     dev_command: Optional[str] = None
     port_range: Optional[str] = None
+    default_init_method: Optional[str] = None  # Default: worktree, copy, or clone
 
 
 def get_default_config_path() -> str:
@@ -29,4 +30,8 @@ def load_config(path: str) -> Config:
     with open(config_path, "r") as f:
         data = yaml.safe_load(f) or {}
 
-    return Config(dev_command=data.get("devCommand"), port_range=data.get("portRange"))
+    return Config(
+        dev_command=data.get("devCommand"),
+        port_range=data.get("portRange"),
+        default_init_method=data.get("defaultInitMethod"),
+    )

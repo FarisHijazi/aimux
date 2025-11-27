@@ -94,6 +94,7 @@ Create a `aimux.yaml` file in your project root:
 ```yaml
 devCommand: cd myproject && npm install && npm run dev -- --port $PORT
 portRange: 3000-3010
+defaultInitMethod: worktree  # Options: worktree (default), copy, clone
 ```
 
 ## Basic Usage
@@ -108,10 +109,14 @@ portRange: 3000-3010
 # Create agent sessions (uses git worktrees by default)
 aimux prompt --agents claude:2 "Implement a REST API"
 
-# Create agent sessions with directory copies instead of worktrees
-aimux prompt --init-method=copy --agents claude:2 "Implement a REST API"
+# Create agent sessions with directory copies - short form
+aimux prompt -m copy --agents claude:2 "Implement a REST API"
 
-# Create agent sessions by cloning from a repository URL
+# Clone from repository URL - auto-detects clone method!
+aimux prompt -u https://github.com/user/repo.git --agents claude:2 "Implement a REST API"
+
+# Long form examples (all work the same)
+aimux prompt --init-method=copy --agents claude:2 "Implement a REST API"
 aimux prompt --init-method=clone --url=https://github.com/user/repo.git --agents claude:2 "Implement a REST API"
 
 # Legacy syntax (deprecated but still supported)
@@ -150,13 +155,14 @@ aimux reset
 
 ### Choosing Project Initialization Method
 
-Aimux supports three methods to initialize project environments for agents. Use the `--init-method` parameter to choose:
+Aimux supports three methods to initialize project environments for agents. Use `-m` (short) or `--init-method` (long) to choose:
 
 #### 1. Git Worktrees (Default)
 ```bash
-aimux prompt --init-method=worktree --agents claude:2 "Your task"
-# Or simply omit --init-method (worktree is default)
-aimux prompt --agents claude:2 "Your task"
+# Explicit
+aimux prompt -m worktree "Your task"
+# Or omit (default)
+aimux prompt "Your task"
 ```
 
 **Benefits:**
@@ -169,7 +175,10 @@ aimux prompt --agents claude:2 "Your task"
 
 #### 2. Hard Copy
 ```bash
-aimux prompt --init-method=copy --agents claude:2 "Your task"
+# Short form (recommended)
+aimux prompt -m copy "Your task"
+# Long form
+aimux prompt --init-method=copy "Your task"
 ```
 
 **Benefits:**
@@ -187,8 +196,13 @@ aimux prompt --init-method=copy --agents claude:2 "Your task"
 
 #### 3. Clone from URL
 ```bash
-aimux prompt --init-method=clone --url=https://github.com/user/repo.git --agents claude:2 "Your task"
+# Short form with auto-detection (RECOMMENDED!)
+aimux prompt -u https://github.com/user/repo.git "Your task"
+# Long form
+aimux prompt --init-method=clone --url=https://github.com/user/repo.git "Your task"
 ```
+
+**✨ Pro Tip**: Just use `-u URL` - the clone method is auto-detected!
 
 **Benefits:**
 - Work on any GitHub/GitLab repository instantly
@@ -197,6 +211,19 @@ aimux prompt --init-method=clone --url=https://github.com/user/repo.git --agents
 - Automatic cleanup after agent creation
 
 **Best for:** Working on repositories you don't have locally, or testing changes on external projects
+
+#### 4. Config File Default
+
+Set your preferred default in `aimux.yaml`:
+```yaml
+defaultInitMethod: copy  # Options: worktree, copy, clone
+```
+
+Now all prompts use your preferred method by default:
+```bash
+# Uses 'copy' instead of 'worktree' if configured
+aimux prompt "Your task"
+```
 
 ### Legacy Syntax (Deprecated)
 

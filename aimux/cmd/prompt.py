@@ -114,6 +114,15 @@ def execute_prompt(
     if not prompt_text:
         raise ValueError("Prompt argument is required")
 
+    # Load config first to get default init method
+    if config_path is None:
+        config_path = get_default_config_path()
+
+    try:
+        cfg = load_config(config_path)
+    except Exception:
+        cfg = Config()
+
     # Handle backward compatibility and determine actual initialization method
     actual_init_method = init_method
     actual_url = url
@@ -127,7 +136,18 @@ def execute_prompt(
         print("Warning: --no-worktree is deprecated. Use --init-method=copy instead")
         actual_init_method = "copy"
 
-    # Default to worktree if not specified
+    # Auto-detect clone method if URL is provided without explicit method
+    if actual_url and not actual_init_method:
+        actual_init_method = "clone"
+
+    # Use config default if not specified
+    if not actual_init_method and cfg.default_init_method:
+        actual_init_method = cfg.default_init_method
+        if actual_init_method not in ["worktree", "copy", "clone"]:
+            print(f"Warning: Invalid defaultInitMethod '{actual_init_method}' in config, using 'worktree'")
+            actual_init_method = "worktree"
+
+    # Default to worktree if still not specified
     if not actual_init_method:
         actual_init_method = "worktree"
 
@@ -148,15 +168,7 @@ def execute_prompt(
     use_clone = actual_init_method == "clone"
     clone_source_url = actual_url if use_clone else None
 
-    # Load config
-    if config_path is None:
-        config_path = get_default_config_path()
-
-    try:
-        cfg = load_config(config_path)
-    except Exception:
-        cfg = Config()
-
+    # Config is already loaded above
     if not cfg.dev_command:
         print("Dev command not set in config, skipping dev server startup.")
     if not cfg.port_range:
